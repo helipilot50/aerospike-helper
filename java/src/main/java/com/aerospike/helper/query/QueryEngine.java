@@ -280,7 +280,8 @@ public class QueryEngine implements Closeable{
 
 		String filterFuncStr = buildFilterFunction(qualifiers);
 		originArgs.put("filterFuncStr", filterFuncStr);
-
+		//System.out.println(originArgs);
+		
 		if (metaOnly)
 			stmt.setAggregateFunction(this.getClass().getClassLoader(), AS_UTILITY_PATH, QUERY_MODULE, "query_meta", Value.get(originArgs));
 		else
@@ -499,18 +500,23 @@ public class QueryEngine implements Closeable{
 			count++;
 		}
 		sb.append(" then selectedRec = true end");
-		return sb.toString();
+		
+		if (count < 1) 
+			return "none";
+			
+		else 
+			return sb.toString();
 	}
 
 
 	private void registerUDF() {
-		if (!this.moduleCache.containsKey(QUERY_MODULE+".lua")){ // register the as_utility udf module
+		//if (!this.moduleCache.containsKey(QUERY_MODULE+".lua")){ // register the as_utility udf module
 
 			RegisterTask task = this.client.register(null, this.getClass().getClassLoader(), 
 					AS_UTILITY_PATH, 
 					QUERY_MODULE+".lua", Language.LUA);
 			task.isDone();
-		}
+		//}
 	}
 	/**
 	 * Gets the current InfoPolicy

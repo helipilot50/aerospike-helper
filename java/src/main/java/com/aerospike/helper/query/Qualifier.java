@@ -211,7 +211,7 @@ public class Qualifier implements Map<String, Object>, Serializable{
 		case EQ:
 			return String.format("%s == %s", field,  value1);
 		case LIST_CONTAINS:
-			return String.format("containsValue(%s, %s)", field,  value1);
+			return String.format("listContains(%s, %s)", field,  value1);
 		case MAP_KEYS_CONTAINS:
 			return String.format("containsKey(%s, %s)", field,  value1);
 		case MAP_VALUES_CONTAINS:
@@ -232,7 +232,7 @@ public class Qualifier implements Map<String, Object>, Serializable{
 			return String.format("%s >= %s and %s <= %s  ", fieldString, value1, field, value2);
 		case LIST_BETWEEN:
 			value2 = luaValueString(getValue2());
-			return String.format("rangeValue(%s, %s, %s)", field,  value1, value2);
+			return String.format("listRange(%s, %s, %s)", field,  value1, value2);
 		case MAP_KEYS_BETWEEN:
 			value2 = luaValueString(getValue2());
 			return String.format("rangeKey(%s, %s, %s)", field,  value1, value2);

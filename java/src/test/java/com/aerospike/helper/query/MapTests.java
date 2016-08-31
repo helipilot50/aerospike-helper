@@ -31,6 +31,7 @@ public class MapTests extends HelperTests{
 
 	private static final String SET = "maps";
 	private static final String mapBin = "map-of-things";
+	private static final String mapBinNoIndex = "map-no-index";
 
 	@Before
 	public void setUp() throws Exception {
@@ -50,15 +51,15 @@ public class MapTests extends HelperTests{
 		for (int i = 0; i < 100; i++){
 			Key newKey = new Key(TestQueryEngine.NAMESPACE, SET, "a-record-with-a-map-"+i);
 			Map<Value, Value> aMap = new HashMap<Value, Value>();
+			Map<Value, Value> bMap = new HashMap<Value, Value>();
 			for ( int j = 0; j < 100; j++){
 				aMap.put(Value.get("dogs"+j), Value.get(rand.nextInt(100) + 250));
 				aMap.put(Value.get("mice"+j), Value.get(rand.nextInt(100) + 250));
+				bMap.put(Value.get("dogs"+j), Value.get(rand.nextInt(100) + 250));
+				bMap.put(Value.get("mice"+j), Value.get(rand.nextInt(100) + 250));
 			}
-			client.put(writePolicy, newKey, new Bin(mapBin, aMap));
+			client.put(writePolicy, newKey, new Bin(mapBin, aMap), new Bin(mapBinNoIndex, bMap));
 		}
-
-
-
 	}
 
 	@After
@@ -101,6 +102,27 @@ public class MapTests extends HelperTests{
 		}
 		Assert.assertEquals(count, count2);
 	}
+	@Test
+	public void selectByKeyNoIndex() throws IOException{
+		// Execute the Query
+		Statement stmt = new Statement();
+		stmt.setNamespace(TestQueryEngine.NAMESPACE);
+		stmt.setSetName(SET);
+
+		Qualifier qual1 = new Qualifier(mapBinNoIndex, Qualifier.FilterOperation.MAP_KEYS_CONTAINS, Value.get("dogs7"));
+		KeyRecordIterator it = queryEngine.select(stmt, qual1);
+		int count2 = 0;
+		try{
+			while (it.hasNext()){
+				KeyRecord rec = it.next();
+				Map<String, Object> map = (Map<String, Object>) rec.record.getMap(mapBinNoIndex);
+				Assert.assertTrue(map.containsKey("dogs7"));
+				count2++;
+			}
+		} finally {
+			it.close();
+		}
+	}
 
 	@Test
 	public void selectByValueRange() throws IOException{
@@ -113,14 +135,12 @@ public class MapTests extends HelperTests{
 		int count = 0;
 		RecordSet recordSet = client.query(null, stmt);
 		try {
-//			System.out.println("\nRecords with map values between 300 and 350:");
 			while (recordSet != null & recordSet.next()){
 				count++;
 			}
 		} finally {
 			if (recordSet != null) recordSet.close();
 		}
-//		System.out.println("\t" + count);
 
 		Qualifier qual1 = new Qualifier(mapBin, Qualifier.FilterOperation.MAP_VALUES_BETWEEN, Value.get(300), Value.get(350));
 		KeyRecordIterator it = queryEngine.select(stmt, qual1);
@@ -146,6 +166,38 @@ public class MapTests extends HelperTests{
 
 
 	}
+	
+	@Test
+	public void selectByValueRangeNoIndex() throws IOException{
+
+		// Execute the Query
+		Statement stmt = new Statement();
+		stmt.setNamespace(TestQueryEngine.NAMESPACE);
+		stmt.setSetName(SET);
+
+		Qualifier qual1 = new Qualifier(mapBinNoIndex, Qualifier.FilterOperation.MAP_VALUES_BETWEEN, Value.get(300), Value.get(350));
+		KeyRecordIterator it = queryEngine.select(stmt, qual1);
+		int count2 = 0;
+		try{
+			while (it.hasNext()){
+				KeyRecord rec = it.next();
+				Map<String, Long> map = (Map<String, Long>) rec.record.getMap(mapBinNoIndex);
+				boolean found = false;
+				for (Long value : map.values()) {
+					if (value >= 300L && value <= 350L){
+						found = true;
+						break;
+					}
+				}
+				Assert.assertTrue(found);
+				count2++;
+			}
+		} finally {
+			it.close();
+		}
+
+
+	}
 
 	@Test
 	public void selectByValueEquals() throws IOException{
@@ -158,14 +210,12 @@ public class MapTests extends HelperTests{
 		int count = 0;
 		RecordSet recordSet = client.query(null, stmt);
 		try {
-//			System.out.println("\nRecords with map values of 310:");
 			while (recordSet != null & recordSet.next()){
 				count++;
 			}
 		} finally {
 			if (recordSet != null) recordSet.close();
 		}
-//		System.out.println("\t" + count);
 
 		Qualifier qual1 = new Qualifier(mapBin, Qualifier.FilterOperation.MAP_VALUES_CONTAINS, Value.get(310L));
 		KeyRecordIterator it = queryEngine.select(stmt, qual1);
@@ -181,8 +231,29 @@ public class MapTests extends HelperTests{
 			it.close();
 		}
 		Assert.assertEquals(count, count2);
+	}
+	
+	@Test
+	public void selectByValueEqualsNoIndex() throws IOException{
 
+		// Execute the Query
+		Statement stmt = new Statement();
+		stmt.setNamespace(TestQueryEngine.NAMESPACE);
+		stmt.setSetName(SET);
 
+		Qualifier qual1 = new Qualifier(mapBinNoIndex, Qualifier.FilterOperation.MAP_VALUES_CONTAINS, Value.get(310L));
+		KeyRecordIterator it = queryEngine.select(stmt, qual1);
+		int count2 = 0;
+		try{
+			while (it.hasNext()){
+				KeyRecord rec = it.next();
+				Map<String, Long> map = (Map<String, Long>) rec.record.getMap(mapBinNoIndex);
+				Assert.assertTrue(map.containsValue(310L));
+				count2++;
+			}
+		} finally {
+			it.close();
+		}
 	}
 
 	private void createIndex(String indexName, String binName, IndexType indexType, IndexCollectionType collectionType){
