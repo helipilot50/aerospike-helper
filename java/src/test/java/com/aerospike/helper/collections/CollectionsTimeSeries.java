@@ -71,7 +71,7 @@ public class CollectionsTimeSeries {
 	@Test
 	public void add(){
 		Key key = new Key("test", "holdings", "a-unique-account number-002");
-		client = new AerospikeClient("127.0.0.1", 3000);
+		client = new AerospikeClient("10.211.55.101", 3000);
 		client.delete(null, key);
 		TimeSeries timeSeries = new TimeSeries (client,null, key,"ts-bin-001");
 		DateTime startTime = new DateTime("1960-04-30T23:50:45.576");

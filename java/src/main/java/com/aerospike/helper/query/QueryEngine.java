@@ -17,10 +17,13 @@ package com.aerospike.helper.query;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -34,11 +37,11 @@ import com.aerospike.client.Language;
 import com.aerospike.client.Record;
 import com.aerospike.client.Value;
 import com.aerospike.client.cluster.Node;
-import com.aerospike.client.command.ParticleType;
 import com.aerospike.client.policy.InfoPolicy;
 import com.aerospike.client.policy.RecordExistsAction;
 import com.aerospike.client.policy.WritePolicy;
 import com.aerospike.client.query.Filter;
+import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.KeyRecord;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.ResultSet;
@@ -64,10 +67,21 @@ public class QueryEngine implements Closeable{
 
 	protected static final String AS_UTILITY_PATH = QUERY_MODULE+".lua";
 
+	static Qualifier.FilterOperation[] indexableOperations = { Qualifier.FilterOperation.BETWEEN,
+			Qualifier.FilterOperation.EQ,
+			Qualifier.FilterOperation.LIST_BETWEEN,
+			Qualifier.FilterOperation.LIST_CONTAINS,
+			Qualifier.FilterOperation.MAP_KEYS_BETWEEN,
+			Qualifier.FilterOperation.MAP_KEYS_CONTAINS,
+			Qualifier.FilterOperation.MAP_VALUES_BETWEEN,
+			Qualifier.FilterOperation.MAP_VALUES_CONTAINS };
+
+	protected static final Set indexableSet = new HashSet(Arrays.asList(indexableOperations));
+
 	protected static Logger log = Logger.getLogger(QueryEngine.class);
 
 	protected AerospikeClient client;
-	protected Map<String, Index> indexCache;
+	protected Map<String, Set<Index>> indexCache;
 	public WritePolicy updatePolicy;
 	public WritePolicy insertPolicy;
 	public InfoPolicy infoPolicy;
@@ -272,26 +286,33 @@ public class QueryEngine implements Closeable{
 		else
 			stmt.setAggregateFunction(this.getClass().getClassLoader(), AS_UTILITY_PATH, QUERY_MODULE, "select_records", Value.get(originArgs));
 		ResultSet resultSet = null;
-		
+
 		if (node != null) {
 			resultSet = this.client.queryAggregateNode(null, stmt, node);
 		} else {
 			resultSet = this.client.queryAggregate(null, stmt);
 		}
-	results = new KeyRecordIterator(stmt.getNamespace(), resultSet);
+		results = new KeyRecordIterator(stmt.getNamespace(), resultSet);
 		return results;
 	}
 
 	protected boolean isIndexedBin(Qualifier qualifier){
-		Index index = this.indexCache.get(qualifier.getField());
-		if (index == null)
-			return false;
-
+		String field = qualifier.getField();
 		FilterOperation operation = qualifier.getOperation();
-		if (operation != FilterOperation.EQ && operation != FilterOperation.BETWEEN)
+		if ( !indexableSet.contains(operation) )
 			return false;
-
-		return true;
+		
+		if (!this.indexCache.containsKey(field))
+			return false;
+		
+		Filter filter = qualifier.asFilter();
+		Set<Index> indexSet = this.indexCache.get(field);
+		IndexCollectionType collectionType = filter.getCollectionType();
+		for (Index index : indexSet){
+			if (index.getCollectionType() == collectionType)
+				return true;
+		}
+		return false;
 	}
 
 	/*
@@ -583,7 +604,7 @@ public class QueryEngine implements Closeable{
 		 * cache index by Bin name
 		 */
 		if (this.indexCache == null)
-			this.indexCache = new TreeMap<String, Index>();
+			this.indexCache = new TreeMap<String, Set<Index>>();
 
 		Node[] nodes = client.getNodes();
 		for (Node node : nodes){
@@ -594,8 +615,7 @@ public class QueryEngine implements Closeable{
 						String[] indexList = indexString.split(";");
 						for (String oneIndexString : indexList){
 							Index index = new Index(oneIndexString);	
-							String indexBin = index.getBin();
-							this.indexCache.put(indexBin, index);
+							addToCache(index);
 						}
 					}
 					break;
@@ -605,12 +625,24 @@ public class QueryEngine implements Closeable{
 			}
 		}
 	}
+
+	private synchronized void addToCache(Index index){
+		String indexBin = index.getBin();
+		Set<Index> binSet = null;
+		if (this.indexCache.containsKey(indexBin)) {
+			binSet = this.indexCache.get(indexBin);
+		} else {
+			binSet = new HashSet<Index>();
+		}
+		binSet.add(index);
+		this.indexCache.put(indexBin, binSet);
+	}
 	/**
 	 * Gets a specific index from the index cache by Bin name
 	 * @param binName The name of the indexed Bin
 	 * @return An Index model object
 	 */
-	public synchronized Index getIndex(String binName){
+	public synchronized Set<Index> getIndex(String binName){
 		return this.indexCache.get(binName);
 	}
 	/**
@@ -623,7 +655,7 @@ public class QueryEngine implements Closeable{
 		Node[] nodes = client.getNodes();
 		for (Node node : nodes){
 			try {
-			
+
 				String packagesString = Info.request(infoPolicy, node, "udf-list");
 				if (!packagesString.isEmpty()){
 					String[] packagesList = packagesString.split(";");
@@ -637,7 +669,7 @@ public class QueryEngine implements Closeable{
 				loadedModules = true;
 				break;
 			} catch (AerospikeException e){
-				
+
 			}
 		}
 		if (!loadedModules){

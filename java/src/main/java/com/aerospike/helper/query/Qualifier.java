@@ -60,15 +60,19 @@ import com.aerospike.client.query.IndexCollectionType;
 public class Qualifier implements Map<String, Object>, Serializable{
 	private static final long serialVersionUID = -2689196529952712849L;
 	private static final String FIELD = "field";
+	private static final String VALUE3 = "value2";
 	private static final String VALUE2 = "value2";
 	private static final String VALUE1 = "value1";
 	private static final String OPERATION = "operation";
-	private static final String COLLECTION_OPERATION = "collection-operation";
 	protected Map<String, Object> internalMap;
 	public enum FilterOperation {
 		EQ, GT, GTEQ, LT, LTEQ, NOTEQ, BETWEEN, START_WITH, ENDS_WITH, 
-		LIST_CONTAINS, MAP_KEYS_CONTAINS, MAP_VALUES_CONTAINS, 
-		LIST_BETWEEN, MAP_KEYS_BETWEEN, MAP_VALUES_BETWEEN
+		LIST_CONTAINS, LIST_BETWEEN, 
+		MAP_KEYS_CONTAINS, MAP_VALUES_CONTAINS, MAP_KEYS_BETWEEN, MAP_VALUES_BETWEEN,
+		GEO_WITHIN_REGION, GEO_WITHIN_RADIUS, GEO_CONTAINS,
+		GEO_LIST_WITHIN_REGION, GEO_LIST_WITHIN_RADIUS, GEO_LIST_CONTAINS,
+		GEO_MAP_KEYS_WITHIN_REGION, GEO_MAP_KEYS_WITHIN_RADIUS, GEO_MAP_KEYS_CONTAINS,
+		GEO_MAP_VALUES_WITHIN_REGION, GEO_MAP_VALUES_WITHIN_RADIUS, GEO_MAP_VALUES_CONTAINS
 	}
 
 	public Qualifier() {
@@ -85,7 +89,10 @@ public class Qualifier implements Map<String, Object>, Serializable{
 		this(field, operation, value1);
 		internalMap.put(VALUE2, value2);
 	}
-
+	public Qualifier(String field, FilterOperation operation, Value value1, Value value2, Value value3) {
+		this(field, operation, value1, value2);
+		internalMap.put(VALUE3, value3);
+	}
 
 
 	public FilterOperation getOperation(){
@@ -100,6 +107,9 @@ public class Qualifier implements Map<String, Object>, Serializable{
 	public Value getValue2(){
 		return (Value) internalMap.get(VALUE2);
 	}
+	public Value getValue3(){
+		return (Value) internalMap.get(VALUE3);
+	}
 
 	@SuppressWarnings("deprecation")
 	public Filter asFilter(){
@@ -111,19 +121,51 @@ public class Qualifier implements Map<String, Object>, Serializable{
 			else
 				return Filter.equal(getField(), getValue1().toString());
 		case BETWEEN:
-			return Filter.range(getField(), getValue1().toLong(), getValue2().toLong());
+			return Filter.range(getField(), getValue1().toLong(), getValue2().toLong());	
+		// List	
 		case LIST_CONTAINS:
 			return collectionContains(IndexCollectionType.LIST);
+		case LIST_BETWEEN:
+			return collectionRange(IndexCollectionType.LIST);
+		// Map	
 		case MAP_KEYS_CONTAINS:
 			return collectionContains(IndexCollectionType.MAPKEYS);
 		case MAP_VALUES_CONTAINS:
 			return collectionContains(IndexCollectionType.MAPVALUES);
-		case LIST_BETWEEN:
-			return collectionRange(IndexCollectionType.LIST);
 		case MAP_KEYS_BETWEEN:
 			return collectionRange(IndexCollectionType.MAPKEYS);
 		case MAP_VALUES_BETWEEN:
-			return collectionRange(IndexCollectionType.MAPKEYS);
+			return collectionRange(IndexCollectionType.MAPVALUES);
+		
+		// Geo
+		case GEO_WITHIN_REGION:
+			return Filter.geoWithinRegion(getField(), getValue1().toString());
+		case GEO_WITHIN_RADIUS:
+			return Filter.geoWithinRadius(getField(), getValue1().toLong(), getValue2().toLong(), getValue3().toLong());
+		case GEO_CONTAINS:
+			return Filter.geoContains(getField(), getValue1().toString());
+			
+		// Geo - List
+		case GEO_LIST_WITHIN_REGION:
+			return collectionGeoRegion(IndexCollectionType.LIST);
+		case GEO_LIST_WITHIN_RADIUS:
+			return collectionGeoRadius(IndexCollectionType.LIST);
+		case GEO_LIST_CONTAINS:
+			return collectionGeoContains(IndexCollectionType.LIST);
+
+		// Geo - Map
+		case GEO_MAP_KEYS_WITHIN_REGION:
+			return collectionGeoRegion(IndexCollectionType.MAPKEYS);
+		case GEO_MAP_VALUES_WITHIN_REGION:
+			return collectionGeoRegion(IndexCollectionType.MAPVALUES);
+		case GEO_MAP_KEYS_WITHIN_RADIUS:
+			return collectionGeoRadius(IndexCollectionType.MAPKEYS);
+		case GEO_MAP_VALUES_WITHIN_RADIUS:
+			return collectionGeoRadius(IndexCollectionType.MAPVALUES);
+		case GEO_MAP_KEYS_CONTAINS:
+			return collectionGeoContains(IndexCollectionType.MAPKEYS);
+		case GEO_MAP_VALUES_CONTAINS:
+			return collectionGeoContains(IndexCollectionType.MAPVALUES);
 		default:
 			return null;
 		}
@@ -144,49 +186,92 @@ public class Qualifier implements Map<String, Object>, Serializable{
 		return Filter.range(getField(), collectionType, getValue1().toLong(), getValue2().toLong());
 	}
 
+	private Filter collectionGeoContains(IndexCollectionType collectionType){
+		return Filter.geoContains(getField(), collectionType, 
+				getValue1().toString() /*point*/);
+	}
+
+	private Filter collectionGeoRadius(IndexCollectionType collectionType){
+		return Filter.geoWithinRadius(getField(), collectionType, 
+				(Double) getValue1().getObject() /*Lon*/, 
+				(Double) getValue2().getObject() /*lat*/, 
+				(Long) getValue3().getObject() /*radius*/);
+	}
+
+	private Filter collectionGeoRegion(IndexCollectionType collectionType){
+		return Filter.geoWithinRegion(getField(), collectionType, 
+				getValue1().toString() /*region*/);
+	}
+
 	public String luaFilterString(){
 		String value1 = luaValueString(getValue1());
+		String field = luaFieldString(getField());
 		FilterOperation op = getOperation();
 		switch (op) {
 		case EQ:
-			return String.format("%s == %s", luaFieldString(getField()),  value1);
+			return String.format("%s == %s", field,  value1);
 		case LIST_CONTAINS:
-			return String.format("containsValue(%s, %s)", luaFieldString(getField()),  value1);
+			return String.format("containsValue(%s, %s)", field,  value1);
 		case MAP_KEYS_CONTAINS:
-			return String.format("containsKey(%s, %s)", luaFieldString(getField()),  value1);
+			return String.format("containsKey(%s, %s)", field,  value1);
 		case MAP_VALUES_CONTAINS:
-			return String.format("containsValue(%s, %s)", luaFieldString(getField()),  value1);
+			return String.format("containsValue(%s, %s)", field,  value1);
 		case NOTEQ:
-			return String.format("%s ~= %s", luaFieldString(getField()), value1);
+			return String.format("%s ~= %s", field, value1);
 		case GT:
-			return String.format("%s > %s", luaFieldString(getField()), value1);
+			return String.format("%s > %s", field, value1);
 		case GTEQ:
-			return String.format("%s >= %s", luaFieldString(getField()), value1);
+			return String.format("%s >= %s", field, value1);
 		case LT:
-			return String.format("%s < %s", luaFieldString(getField()), value1);
+			return String.format("%s < %s", field, value1);
 		case LTEQ:
-			return String.format("%s <= %s", luaFieldString(getField()), value1);
+			return String.format("%s <= %s", field, value1);
 		case BETWEEN:
 			String value2 = luaValueString(getValue2());
-			String fieldString = luaFieldString(getField()); 
-			return String.format("%s >= %s and %s <= %s  ", fieldString, value1, luaFieldString(getField()), value2);
+			String fieldString = field; 
+			return String.format("%s >= %s and %s <= %s  ", fieldString, value1, field, value2);
 		case LIST_BETWEEN:
 			value2 = luaValueString(getValue2());
-			return String.format("rangeValue(%s, %s, %s)", luaFieldString(getField()),  value1, value2);
+			return String.format("rangeValue(%s, %s, %s)", field,  value1, value2);
 		case MAP_KEYS_BETWEEN:
 			value2 = luaValueString(getValue2());
-			return String.format("rangeKey(%s, %s, %s)", luaFieldString(getField()),  value1, value2);
+			return String.format("rangeKey(%s, %s, %s)", field,  value1, value2);
 		case MAP_VALUES_BETWEEN:
 			value2 = luaValueString(getValue2());
-			return String.format("rangeValue(%s, %s, %s)", luaFieldString(getField()),  value1, value2);
+			return String.format("rangeValue(%s, %s, %s)", field,  value1, value2);
 		case START_WITH:
-			return String.format("string.sub(%s,1,string.len(%s))==%s", luaFieldString(getField()), value1, value1);			
+			return String.format("string.sub(%s,1,string.len(%s))==%s", field, value1, value1);			
 		case ENDS_WITH:
 			return String.format("%s=='' or string.sub(%s,-string.len(%s))==%s", 
 					value1,
-					luaFieldString(getField()),
+					field,
 					value1,
 					value1);			
+		case GEO_CONTAINS:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_WITHIN_REGION:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_WITHIN_RADIUS:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_LIST_CONTAINS:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_LIST_WITHIN_REGION:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_LIST_WITHIN_RADIUS:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_MAP_KEYS_CONTAINS:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_MAP_KEYS_WITHIN_REGION:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_MAP_KEYS_WITHIN_RADIUS:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_MAP_VALUES_CONTAINS:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_MAP_VALUES_WITHIN_REGION:
+			return ""; //TODO - add Lua functions to filter GEO
+		case GEO_MAP_VALUES_WITHIN_RADIUS:
+			return ""; //TODO - add Lua functions to filter GEO
+
 		}
 		return "";
 	}
