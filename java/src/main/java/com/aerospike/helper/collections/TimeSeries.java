@@ -27,7 +27,11 @@ import com.aerospike.client.Key;
 import com.aerospike.client.Operation;
 import com.aerospike.client.Record;
 import com.aerospike.client.Value;
-import com.aerospike.client.cdt.ListOperation;
+import com.aerospike.client.cdt.MapOperation;
+import com.aerospike.client.cdt.MapOrder;
+import com.aerospike.client.cdt.MapPolicy;
+import com.aerospike.client.cdt.MapReturnType;
+import com.aerospike.client.cdt.MapWriteMode;
 import com.aerospike.client.policy.WritePolicy;
 
 /**
@@ -46,17 +50,18 @@ public class TimeSeries {
 	public static final long DefaultBucketSize = 1000; // In milliseconds 
 
 	private static final String configBucketSize = "bucketSize"; 
-	
+
 	private static final String valueBin = "____TSvalue"; 
 	private static final String topBin = "____TStop"; 
 	private static final String tailBin = "____TStail"; 
 	private AerospikeClient client;
 	private WritePolicy policy;
+	private MapPolicy mapPolicy;
 	private Key key;
 	private String binName;
 	private long bucketSize; // Bucket size in milliseconds
 	private long modelVersion = 1;
-	
+
 
 	/** 
 	 * Private constructor for test only
@@ -71,6 +76,7 @@ public class TimeSeries {
 		this.policy = policy;
 		this.key = key;
 		this.binName = binName;
+		this.mapPolicy = new MapPolicy(MapOrder.KEY_ORDERED, MapWriteMode.UPDATE);
 		config();
 	}
 
@@ -90,32 +96,63 @@ public class TimeSeries {
 		}
 	}
 
+	/**
+	 * Add an element to the time series
+	 * @param timeStamp
+	 * @param value
+	 */
 	public void add(long timeStamp, Value value){
 		Key subKey = formSubrecordKey(timeStamp);
-		this.client.operate(this.policy, subKey, ListOperation.append(valueBin, Value.get(new Entry(timeStamp, value).toMap())));
+		Entry entry = new Entry(timeStamp, value);
+		this.client.operate(this.policy, subKey, 
+				MapOperation.put(this.mapPolicy, valueBin, 
+						Value.get(entry.getTimeStamp()), 
+						Value.get(new Entry(timeStamp, value).toMap())));
 	}
 
-	public void add(List<Map<String, Object>> values){
-		for (Map<String, Object> entry : values) {
-			if (entry.containsKey(tsKey) && entry.containsKey(tsValue)){
-				Key subKey = formSubrecordKey((Long)entry.get(tsKey));
-				this.client.operate(this.policy, subKey, ListOperation.append(valueBin, Value.get(entry)));
-			}
-		}
-	}
-
-	public Value find(long timeStamp){
+	/**
+	 * finds a value in the time series
+	 * @param timeStamp
+	 * @return
+	 */
+	public Object find(long timeStamp){
 		Key subKey = formSubrecordKey(timeStamp);
-		Record record = this.client.get(this.policy, subKey);
+		Record record = this.client.operate(this.policy, subKey, 
+				MapOperation.getByKey(valueBin, 
+						Value.get(timeStamp), MapReturnType.VALUE));
 		if (record != null){
-			List<Value> values = (List<Value>) record.getList(valueBin);
-			for (Value value : values){
-				// do something clever here
-			}
+			Entry entry = new Entry((HashMap<Long, ?>)record.getValue(valueBin));
+			return entry.getValue();
 		}
 		return null;
 	}
-	
+
+	public List<Object> range(long lowTime, long highTime){
+		List<Key> keys = subrecordKeys(lowTime, highTime);
+		System.out.println(String.format("Subkeys:%d", keys.size()));
+		List<Object> results = new ArrayList<Object>();
+		int recordCount = 0;
+		for (Key key : keys){
+			Record record = this.client.operate(this.policy, key, 
+					MapOperation.getByKeyRange(valueBin, Value.get(lowTime), Value.get(highTime), MapReturnType.VALUE));
+			if (record != null){
+				recordCount++;
+				@SuppressWarnings("unchecked")
+				List<HashMap<Long, ?>> someResults = (List<HashMap<Long, ?>>) record.getValue(valueBin);
+				//System.out.println(String.format("Result:%s", someResults.toString()));
+				if (someResults != null)
+					for (HashMap<Long, ?> map : someResults){
+						Entry entry = new Entry(map);
+						results.add(entry.getValue());
+					}
+			}
+		}
+		System.out.println(String.format("Subrecord Count:%d", recordCount));
+
+		return results;
+
+	}
+
 	/**
 	 * clear all elements from the TimeSeries associated with a Key
 	 */
@@ -128,7 +165,7 @@ public class TimeSeries {
 			this.client.delete(null, key);
 		}
 	}
-	
+
 	/**
 	 * Destroy the TimeSeries associated with a Key
 	 */
@@ -163,30 +200,34 @@ public class TimeSeries {
 		long bucketNumber = quantPart * bucketSize;
 		return bucketNumber;
 	}
-	
+
 	public Key getKey() {
 		return this.key;
 	}
 
 	public class Entry{
-		
-		private long timeStamp;
-		private Value value;
 
-		public Entry(long timeStamp, Value value){
+		private long timeStamp;
+		private Object value;
+
+		public Entry(long timeStamp, Object value){
 			this.timeStamp = timeStamp;
 			this.value = value;
 		}
+		private Entry(HashMap<Long, ?> map){
+			this.timeStamp = (Long) map.get(tsKey);
+			this.value = map.get(tsValue);
+		}
 		Map<String, Object> internalMap;
-		
+
 		public long getTimeStamp(){
 			return this.timeStamp;
 		}
 
-		public Value getValue(){
+		public Object getValue(){
 			return this.value;
 		}
-		
+
 		public Map<String, Object> toMap(){
 			Map<String, Object> entry = new HashMap<String, Object>();
 			entry.put(tsKey, timeStamp);
