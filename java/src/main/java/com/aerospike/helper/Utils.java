@@ -13,7 +13,11 @@ import com.aerospike.client.cluster.Node;
 import com.aerospike.helper.model.NameValuePair;
 
 public class Utils {
-	
+	/**
+	 * Prints an "Info" message with a title to System.out 
+	 * @param title Title to be printed
+	 * @param infoString Info string from cluster
+	 */
 	public static void printInfo(String title, String infoString){
 		if (infoString == null){
 			System.out.println("Null info string");
@@ -31,7 +35,13 @@ public class Utils {
 		}
 
 	}
-	public static  String infoAll(AerospikeClient client, String cmd) throws AerospikeException{
+	/**
+	 * Sends an "Info" command to all nodes in the cluster
+	 * @param client AerospikeClient instance
+	 * @param cmd Info command to be sent to the cluster
+	 * @return A string containing the results from all nodes in the cluster
+	 */
+	public static  String infoAll(AerospikeClient client, String cmd) {
 		Node[] nodes = client.getNodes();
 		StringBuilder results = new StringBuilder();
 		for (Node node : nodes){
@@ -39,6 +49,11 @@ public class Utils {
 		}
 		return results.toString();
 	}
+	/**
+	 * converts the results of an "Info" command to a Map
+	 * @param source Info string to be converted
+	 * @return A map containing the info string fields
+	 */
 	public static Map<String, String> toMap(String source){
 		HashMap<String, String> responses = new HashMap<String, String>();
 		String values[] = source.split(";");
@@ -57,7 +72,12 @@ public class Utils {
 		return responses.size() != 0 ? responses : null;
 
 	}
-	
+	/**
+	 * Creates a List of NameValuePair from a Map
+	 * @param parent The Parent object to be added to the NameValuePair of each element
+	 * @param map The map to be converted 
+	 * @return The List of NameValuePairs
+	 */
 	public static List<NameValuePair> toNameValuePair(Object parent, Map<String, String> map){
 		List<NameValuePair> list = new ArrayList<NameValuePair>();
 		for (String key : map.keySet()){
@@ -67,7 +87,13 @@ public class Utils {
 		return list;
 	}
 
-	
+	/**
+	 * Concatenates 2 arrays with the same type
+	 * @param <T> The type of the elements 
+	 * @param first First array
+	 * @param second Second array
+	 * @return concatenated array
+	 */
 	public static <T> T[] concat(T[] first, T[] second) {
 		  T[] result = Arrays.copyOf(first, first.length + second.length);
 		  System.arraycopy(second, 0, result, first.length, second.length);

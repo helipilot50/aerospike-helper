@@ -5,11 +5,11 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ SelectorTests.class, InserterTests.class, UpdatorTests.class, DeleterTests.class, UsersTests.class })
+@SuiteClasses({ SelectorTests.class, InserterTests.class, UpdatorTests.class, DeleterTests.class, MapTests.class, ListTests.class, UsersTests.class })
 public class TestQueryEngine {
 	public static final int PORT = 3000;
-	public static final String HOST = "127.0.0.1";
-//	public static final String HOST = "54.175.187.56";
+	public static final String HOST = "10.211.55.101";
+//	public static final String HOST = "127.0.0.1";
 	public static final String NAMESPACE = "test";
 	public static final String SET_NAME = "selector";
 	public static final int RECORD_COUNT = 1000;

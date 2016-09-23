@@ -3,8 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aerospike.Helper", "AerospikeHelper\Aerospike.Helper.csproj", "{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}"
 EndProject
+<<<<<<< HEAD
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}"
 EndProject
+=======
+>>>>>>> master
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -33,21 +36,5 @@ Global
 		{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}.Release|x64.Build.0 = Release|x86
 		{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}.Release|x86.ActiveCfg = Release|x86
 		{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}.Release|x86.Build.0 = Release|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug IIS|x64.ActiveCfg = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug IIS|x64.Build.0 = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug IIS|x86.ActiveCfg = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug IIS|x86.Build.0 = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug|x64.ActiveCfg = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug|x64.Build.0 = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug|x86.ActiveCfg = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Debug|x86.Build.0 = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release IIS|x64.ActiveCfg = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release IIS|x64.Build.0 = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release IIS|x86.ActiveCfg = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release IIS|x86.Build.0 = Debug|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release|x64.ActiveCfg = Release|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release|x64.Build.0 = Release|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release|x86.ActiveCfg = Release|x86
-		{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal

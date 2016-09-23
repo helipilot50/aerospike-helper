@@ -28,16 +28,17 @@ namespace Aerospike.Helper.Collections
 		/// <param name="policy">generic configuration parameters, pass in null for defaults</param>
 		/// <param name="key">unique record identifier</param>
 		/// <param name="binName">bin name</param>
-		public LargeList(AerospikeClient client, WritePolicy policy, Key key, string binName)
+		public LargeList (AerospikeClient client, WritePolicy policy, Key key, string binName)
 		{
 			this.client = client;
 			this.policy = policy;
 			this.key = key;
-			this.binName = Value.Get(binName);
+			this.binName = Value.Get (binName);
 			this.binNameString = this.binName.ToString ();
 		}
 
-		private List<byte[]> SubRecordList(Key key){
+		private List<byte[]> SubRecordList (Key key)
+		{
 			Record record = client.Get (this.policy, key, binNameString);
 			if (record != null) {
 				return (List<byte[]>)record.GetList (binNameString);
@@ -45,13 +46,14 @@ namespace Aerospike.Helper.Collections
 			return null;
 		}
 
-		private Key MakeSubKey(Value value) {
+		private Key MakeSubKey (Value value)
+		{
 			Key subKey;
 			String valueString;
 			if (value is Value.MapValue) {
 
-				IDictionary map = (IDictionary) value.Object;
-				valueString = map ["key"].ToString();
+				IDictionary map = (IDictionary)value.Object;
+				valueString = map ["key"].ToString ();
 
 			} else {
 				
@@ -62,7 +64,9 @@ namespace Aerospike.Helper.Collections
 			subKey = new Key (this.key.ns, this.key.setName, subKeyString);
 			return subKey;
 		}
-		private Key[] MakeSubKeys(IList<Value> values) {
+
+		private Key[] MakeSubKeys (IList<Value> values)
+		{
 			Key[] keys = new Key[values.Count];
 			int index = 0;
 			foreach (Value value in values) {
@@ -72,7 +76,8 @@ namespace Aerospike.Helper.Collections
 			return keys;
 		}
 
-		private IList GetDigestList(){
+		private IList GetDigestList ()
+		{
 			Record topRecord = client.Get (this.policy, this.key, this.binNameString);
 			if (topRecord == null)
 				return new List<byte[]> ();
@@ -81,6 +86,83 @@ namespace Aerospike.Helper.Collections
 				return new List<byte[]> ();
 			return digestList;
 		}
+
+		private Key[] GetElementKeys ()
+		{
+			Key[] keys = null;
+			Record topRecord = client.Get (this.policy, this.key, this.binNameString);
+			if (topRecord != null) {
+				IList digestList = topRecord.GetList (this.binNameString);
+				if (digestList != null) {
+					keys = new Key[digestList.Count];
+					int index = 0;
+					foreach (byte[] digest in digestList) {
+						Key subKey = new Key (this.key.ns, digest, null, null);
+						keys [index] = subKey;
+						index++;
+					}
+				}
+			}
+			return keys;
+		}
+
+		private IList<Record> FetchSubRecords(Key[] subKeys){
+			IList<Record> results = new List<Record> ();
+			Record[] records = client.Get (null, subKeys);
+			foreach (Record record in records) {
+				if (record != null)
+					results.Add (record);
+			}
+//			foreach (Key subKey in subKeys) {
+//				Record record = client.Get (this.policy, subKey, this.binNameString);
+//				if (record != null)
+//					results.Add (record);
+//			}
+			return results;
+
+		}
+		
+
+		private Object FetchSubRecordValue (byte[] digest)
+		{
+			Record element = client.Get (this.policy, new Key (this.key.ns, this.key.setName, digest), ListElementBinName);
+			if (element != null)
+				return element.GetValue (ListElementBinName);
+			return null;
+		}
+
+
+		private bool FilterBinByRange (Record record, String bin, Value low, Value high)
+		{
+			if (record == null)
+				return false;
+			object value = record.GetValue (bin);
+			if (value is IList) {
+				//TODO
+				return false;
+			} else if (value is IDictionary) {
+				IDictionary dict = (IDictionary)value;
+				object keyValue = dict["key"];
+				if (keyValue == null)
+					return false;
+				return FilterRange (keyValue, low, high);
+			} else {
+				return FilterRange (value, low, high);
+			}
+		}
+
+		private bool FilterRange(object value, Value low, Value high){
+			if (value is long) {
+				return ((long)low.Object <= (long)value) && ((long)high.Object >= (long)value);
+			} else if (value is String) {
+				return (String.Compare ((string)low.Object, (string)value) <= 0) && (String.Compare ((string)high.Object, (string)value) >= 0);
+			} else if (value is Double) {
+				return ((Double)low.Object <= (Double)value) && ((Double)high.Object >= (Double)value);
+			} else {
+				return false;
+			}
+		}
+
 		/// <summary>
 		/// Add value to list.  Fail if value's key exists and list is configured for unique keys.
 		/// If value is a map, the key is identified by "key" entry.  Otherwise, the value is the key.
@@ -88,7 +170,7 @@ namespace Aerospike.Helper.Collections
 		/// </summary>
 		/// <param name="value">value to add</param>
 
-		public void Add(Value value)
+		public void Add (Value value)
 		{
 				
 			Key subKey = MakeSubKey (value);
@@ -96,21 +178,23 @@ namespace Aerospike.Helper.Collections
 			client.Put (this.policy, subKey, new Bin (ListElementBinName, value));
 
 			// add the digest of the subKey to the CDT List in the Customer record
-			client.Operate(this.policy, this.key, ListOperation.Append(this.binNameString, Value.Get(subKey.digest)));
-
+			Value digest = Value.Get (subKey.digest);
+			client.Operate (this.policy, this.key, ListOperation.Append (this.binNameString, digest));
 		}
+
 		/// <summary>
 		/// Add values to list.  Fail if a value's key exists and list is configured for unique keys.
 		/// If value is a map, the key is identified by "key" entry.  Otherwise, the value is the key.
 		/// If large list does not exist, create it.
 		/// </summary>
 		/// <param name="values">values to add</param>
-		public void Add(List<Value> items)
+		public void Add (List<Value> items)
 		{
-			foreach(Value Value in items){
-				this.Add(Value);
+			foreach (Value Value in items) {
+				this.Add (Value);
 			}
 		}
+
 		/// <summary>
 		/// Add values to list.  Fail if a value's key exists and list is configured for unique keys.
 		/// If value is a map, the key is identified by "key" entry.  Otherwise, the value is the key.
@@ -118,10 +202,10 @@ namespace Aerospike.Helper.Collections
 		/// </summary>
 		/// <param name="values">values to add</param>
 
-		public void Add(params Value[] items)
+		public void Add (params Value[] items)
 		{
-			foreach(Value Value in items){
-				this.Add(Value);
+			foreach (Value Value in items) {
+				this.Add (Value);
 			}
 		}
 
@@ -131,7 +215,7 @@ namespace Aerospike.Helper.Collections
 		/// If large list does not exist, create it.
 		/// </summary>
 		/// <param name="value">value to update</param>
-		public void Update(Value value)
+		public void Update (Value value)
 		{
 			
 			if (Size () == 0) {
@@ -148,38 +232,38 @@ namespace Aerospike.Helper.Collections
 		/// If large list does not exist, create it.
 		/// </summary>
 		/// <param name="values">values to update</param>
-		public void Update(params Value[] values)
+		public void Update (params Value[] values)
 		{
-			foreach(Value Value in values){
-				this.Update(Value);
+			foreach (Value Value in values) {
+				this.Update (Value);
 			}
 		}
-			
+
 		/// <summary>
 		/// Update/Add each value in values list depending if key exists or not.
 		/// If value is a map, the key is identified by "key" entry.  Otherwise, the value is the key.
 		/// If large list does not exist, create it.
 		/// </summary>
 		/// <param name="values">values to update</param>
-		public void Update(IList values)
+		public void Update (IList values)
 		{
-			foreach(Value Value in values){
-				this.Update(Value);
+			foreach (Value Value in values) {
+				this.Update (Value);
 			}
 
 		}
-			
+
 		/// <summary>
 		/// Delete value from list.
 		/// </summary>
 		/// <param name="value">value to delete</param>
-		public void Remove(Value value)
+		public void Remove (Value value)
 		{
 			Key subKey = MakeSubKey (value);
+			client.Delete (this.policy, subKey);
 			IList digestList = GetDigestList ();
 			int index = digestList.IndexOf (subKey.digest);
-			client.Delete (this.policy, subKey);
-			client.Operate(this.policy, this.key, ListOperation.Remove(this.binNameString, index));
+			client.Operate (this.policy, this.key, ListOperation.Remove (this.binNameString, index));
 
 		}
 
@@ -187,12 +271,12 @@ namespace Aerospike.Helper.Collections
 		/// Delete values from list.
 		/// </summary>
 		/// <param name="values">values to delete</param>
-		public void Remove(IList<Value> values)
+		public void Remove (IList<Value> values)
 		{
 			Key[] keys = MakeSubKeys (values);
 			IList digestList = GetDigestList ();
 
-			foreach (Key key in keys){
+			foreach (Key key in keys) {
 
 				client.Delete (this.policy, key);
 				digestList.Remove (key.digest);
@@ -208,19 +292,20 @@ namespace Aerospike.Helper.Collections
 		/// </summary>
 		/// <param name="begin">low value of the range (inclusive)</param>
 		/// <param name="end">high value of the range (inclusive)</param>
-		public int Remove(Value begin, Value end)
+		public int Remove (Value begin, Value end)
 		{
 			IList digestList = GetDigestList ();
 			Key beginKey = MakeSubKey (begin);
 			Key endKey = MakeSubKey (end);
 			int start = digestList.IndexOf (beginKey.digest);
 			int stop = digestList.IndexOf (endKey.digest);
-			int count = stop - start + 1;;
-			for (int i = start; i < stop; i++){
+			int count = stop - start + 1;
+			;
+			for (int i = start; i < stop; i++) {
 				Key subKey = new Key (this.key.ns, (byte[])digestList [i], null, null);
 				client.Delete (this.policy, subKey);
 			}
-			client.Operate(this.policy, this.key, ListOperation.RemoveRange(this.binNameString, start, count));
+			client.Operate (this.policy, this.key, ListOperation.RemoveRange (this.binNameString, start, count));
 			return count;
 		}
 
@@ -228,7 +313,7 @@ namespace Aerospike.Helper.Collections
 		/// Does key value exist?
 		/// </summary>
 		/// <param name="keyValue">key value to lookup</param>
-		public bool Exists(Value keyValue)
+		public bool Exists (Value keyValue)
 		{
 			Key subKey = MakeSubKey (keyValue);
 			return client.Exists (this.policy, subKey);
@@ -243,7 +328,7 @@ namespace Aerospike.Helper.Collections
 		{
 			IList<bool> target = new List<bool> ();
 			foreach (Object value in keyValues) {
-				target.Add (Exists (Value.Get(value)));
+				target.Add (Exists (Value.Get (value)));
 			}
 			return target;
 
@@ -253,7 +338,7 @@ namespace Aerospike.Helper.Collections
 		/// Select values from list.
 		/// </summary>
 		/// <param name="value">value to select</param>
-		public IList Find(Value value)
+		public IList Find (Value value)
 		{
 			Key subKey = MakeSubKey (value);
 			Record record = client.Get (this.policy, subKey, ListElementBinName);
@@ -266,7 +351,8 @@ namespace Aerospike.Helper.Collections
 
 		}
 
-		private IList get(IList digestList, int start, int stop){
+		private IList get (IList digestList, int start, int stop)
+		{
 			List<Object> results = new List<object> ();
 
 			for (int i = start; i < stop; i++) {
@@ -280,7 +366,6 @@ namespace Aerospike.Helper.Collections
 
 		/// <summary>
 		/// Select values from the begin key up to a maximum count.
-		/// Supported by server versions >= 3.5.8.
 		/// </summary>
 		/// <param name="begin">start value (inclusive)</param>
 		/// <param name="count">maximum number of values to return</param>
@@ -304,7 +389,7 @@ namespace Aerospike.Helper.Collections
 		/// <param name="filterModule">Lua module name which contains filter function</param>
 		/// <param name="filterName">Lua function name which applies filter to returned list</param>
 		/// <param name="filterArgs">arguments to Lua function name</param>
-		public IList FindFrom(Value begin, int count, string filterModule, string filterName, params Value[] filterArgs)
+		public IList FindFrom (Value begin, int count, string filterModule, string filterName, params Value[] filterArgs)
 		{
 			throw new NotImplementedException ();
 		}
@@ -314,28 +399,45 @@ namespace Aerospike.Helper.Collections
 		/// </summary>
 		/// <param name="begin">begin value inclusive</param>
 		/// <param name="end">end value inclusive</param>
-		public IList Range(Value begin, Value end)
+		public IList Range (Value begin, Value end)
 		{
-			IList digestList = GetDigestList ();
-			Key beginKey = MakeSubKey (begin);
-			Key endKey = MakeSubKey (end);
-			int start = digestList.IndexOf (beginKey.digest);
-			int stop = digestList.IndexOf (endKey.digest);
-			return get (digestList, start, stop);
+			IList results = new List<Object> ();
+			Key[] elementKeys = GetElementKeys();
+			if (elementKeys != null || elementKeys.Length > 0) {
+				IList<Record> records = FetchSubRecords(elementKeys);
+				foreach (Record record in records) {
+					if (record != null && FilterBinByRange (record, ListElementBinName, begin, end)) {
+						results.Add (record.GetValue (ListElementBinName));
+					}
+				}
+			}
+			return results;
+
 		}
 
 		/// <summary>
 		/// Select range of values from list.
-		/// 
-		/// THIS METHOD IS NOT IMPLEMENTED - DO NOT USE
-		/// 
 		/// </summary>
 		/// <param name="begin">low value of the range (inclusive)</param>
 		/// <param name="end">high value of the range (inclusive)</param>
 		/// <param name="count">maximum number of values to return, pass in zero to obtain all values within range</param>
-		public IList Range(Value begin, Value end, int count)
+		public IList Range (Value begin, Value end, int count)
 		{
-			throw new NotImplementedException ();
+			IList results = new List<Object> ();
+			Key[] elementKeys = GetElementKeys();
+			if (elementKeys != null || elementKeys.Length > 0) {
+				IList<Record> records = FetchSubRecords(elementKeys);
+				int found = 0;
+				foreach (Record record in records) {
+					if (record != null && FilterBinByRange (record, ListElementBinName, begin, end)) {
+						results.Add (record.GetValue (ListElementBinName));
+						found++;
+						if (found == count)
+							break;
+					}
+				}
+			}
+			return results;
 		}
 
 		/// <summary>
@@ -350,7 +452,7 @@ namespace Aerospike.Helper.Collections
 		/// <param name="filterModule">Lua module name which contains filter function</param>
 		/// <param name="filterName">Lua function name which applies filter to returned list</param>
 		/// <param name="filterArgs">arguments to Lua function name</param>
-		public IList Range(Value begin, Value end, string filterModule, string filterName, params Value[] filterArgs)
+		public IList Range (Value begin, Value end, string filterModule, string filterName, params Value[] filterArgs)
 		{
 			throw new NotImplementedException ();
 		}
@@ -366,7 +468,7 @@ namespace Aerospike.Helper.Collections
 		/// <param name="filterModule">Lua module name which contains filter function</param>
 		/// <param name="filterName">Lua function name which applies filter to returned list</param>
 		/// <param name="filterArgs">arguments to Lua function name</param>
-		public IList Range(Value begin, Value end, int count, string filterModule, string filterName, params Value[] filterArgs)
+		public IList Range (Value begin, Value end, int count, string filterModule, string filterName, params Value[] filterArgs)
 		{
 			throw new NotImplementedException ();
 		}
@@ -374,21 +476,18 @@ namespace Aerospike.Helper.Collections
 		/// <summary>
 		/// Return all objects in the list.
 		/// </summary>
-		public IList Scan()
+		public IList Scan ()
 		{
-			
-			IList digestList = GetDigestList ();
-			if (digestList != null || digestList.Count > 0) {
-				IList results = new List<Value> ();
-				foreach (byte[] digest in digestList) {
-					Key subKey = new Key (this.key.ns, digest, null, null);
-					Record record = client.Get (this.policy, subKey, this.binNameString);
-					results.Add (record.GetValue (ListElementBinName));
+			IList results = new List<Object> ();
+			Key[] elementKeys = GetElementKeys();
+			if (elementKeys != null || elementKeys.Length > 0) {
+				IList<Record> records = FetchSubRecords(elementKeys);
+				foreach (Record record in records) {
+					if (record != null)
+						results.Add (record.GetValue (ListElementBinName));
 				}
-				return results;
-
 			}
-			return null;
+			return results;
 		}
 
 		/// <summary>
@@ -400,7 +499,7 @@ namespace Aerospike.Helper.Collections
 		/// <param name="filterModule">Lua module name which contains filter function</param>
 		/// <param name="filterName">Lua function name which applies filter to returned list</param>
 		/// <param name="filterArgs">arguments to Lua function name</param>
-		public IList Filter(string filterModule, string filterName, params Value[] filterArgs)
+		public IList Filter (string filterModule, string filterName, params Value[] filterArgs)
 		{
 			throw new NotImplementedException ();
 		}
@@ -412,7 +511,7 @@ namespace Aerospike.Helper.Collections
 		{
 			IList digestList = GetDigestList ();
 
-			client.Put (this.policy, this.key, Bin.AsNull(this.binNameString));
+			client.Put (this.policy, this.key, Bin.AsNull (this.binNameString));
 						
 			foreach (byte[] digest in digestList) {
 				Key subKey = new Key (this.key.ns, digest, null, null);
@@ -425,10 +524,13 @@ namespace Aerospike.Helper.Collections
 		/// <summary>
 		/// Return size of list.
 		/// </summary>
-		public int Size()
+		public int Size ()
 		{
-			Record record = client.Operate(this.policy, this.key, ListOperation.Size(this.binNameString));
-			return record.GetInt ("Count");
+			Record record = client.Operate (this.policy, this.key, ListOperation.Size (this.binNameString));
+			if (record != null) {
+				return record.GetInt (this.binNameString);
+			}
+			return 0;
 		}
 
 		/// <summary>
@@ -437,7 +539,7 @@ namespace Aerospike.Helper.Collections
 		/// THIS METHOD IS NOT IMPLEMENTED - DO NOT USE
 		/// 
 		/// </summary>
-		public IDictionary GetConfig()
+		public IDictionary GetConfig ()
 		{
 			throw new NotImplementedException ();
 		}
@@ -449,7 +551,7 @@ namespace Aerospike.Helper.Collections
 		/// 
 		/// </summary>
 		/// <param name="pageSize">page size in bytes</param>
-		public void SetPageSize(int pageSize)
+		public void SetPageSize (int pageSize)
 		{
 			throw new NotImplementedException ();
 		}

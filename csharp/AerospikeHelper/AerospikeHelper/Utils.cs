@@ -12,6 +12,47 @@ namespace Aerospike.Helper
 		{
 		}
 
+//		public static object Execute(AerospikeClient client, WritePolicy policy, Key key, string packageName, string functionName, params Value[] functionArgs){
+//			Record record = client.Get(policy, key);
+//			if (record == null)
+//				return null; //record not found
+//
+//			Statement stmt = new Statement (); // awful klude to pass a function to lua instance
+//			stmt.FunctionName = functionName;
+//			stmt.PackageName = packageName;
+//			stmt.FunctionArgs = functionArgs;
+//
+//			LuaInstance lua = null;
+//
+//			try
+//			{
+//				lua = new LuaInstance();//LuaCache.GetInstance();
+//				lua.LoadPackage(stmt);
+//				object[] args = new object[2 + stmt.FunctionArgs.Length];
+//				args[0] = lua.GetFunction(stmt.FunctionName);
+//				args[1] = record;
+//				int count = 2;
+//
+//				foreach (Value value in stmt.FunctionArgs)
+//				{
+//					args[count++] = value.Object;
+//				}
+//				lua.Call("apply_record", args);
+//			}
+//			finally
+//			{
+//
+//				if (lua != null)
+//				{
+//					//LuaCache.PutInstance(lua);
+//					lua.Close();
+//				}
+//			}
+//
+//			return record;
+//
+//		}
+
 		public static Dictionary<string, String> ToMap(String source){
 			Dictionary<String, string> responses = new Dictionary<string, string>();
 			string[] values = source.Split(';');
@@ -94,4 +135,5 @@ namespace Aerospike.Helper
 
 	}
 }
+
 

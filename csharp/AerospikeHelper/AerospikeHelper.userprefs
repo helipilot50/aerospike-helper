@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Properties StartupConfiguration="{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}|Unit Tests">
   <MonoDevelop.Ide.ItemProperties.Driver PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="AerospikeHelper/Query/Qualifier.cs">
@@ -5,6 +6,12 @@
       <File FileName="AerospikeHelper/Query/QueryEngine.cs" Line="557" Column="5" />
       <File FileName="AerospikeHelper/Query/KeyRecordIterator.cs" Line="68" Column="1" />
       <File FileName="AerospikeHelper/Query/Qualifier.cs" Line="153" Column="1" />
+=======
+﻿<Properties StartupItem="AerospikeHelper/Aerospike.Helper.csproj">
+  <MonoDevelop.Ide.Workbench ActiveDocument="AerospikeHelper/Tests/CollectionsLargeList.cs">
+    <Files>
+      <File FileName="AerospikeHelper/Tests/CollectionsLargeList.cs" Line="85" Column="38" />
+>>>>>>> master
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />

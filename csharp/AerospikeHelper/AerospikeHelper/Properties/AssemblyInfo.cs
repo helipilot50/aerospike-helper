@@ -5,11 +5,11 @@ using System.Runtime.CompilerServices;
 // Change them to the values specific to your project.
 
 [assembly: AssemblyTitle ("AerospikeHelper")]
-[assembly: AssemblyDescription ("")]
+[assembly: AssemblyDescription ("Aerospike Helper")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("")]
-[assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("peter")]
+[assembly: AssemblyCompany("Aerospike")]
+[assembly: AssemblyProduct("AerospikeClient")]
+[assembly: AssemblyCopyright("Copyright © 2012-2016")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

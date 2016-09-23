@@ -22,12 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.aerospike.client.query.IndexCollectionType;
 import com.aerospike.client.query.IndexType;
 /**
  * This class represents a Secondary Index
  * created in the cluster.
  * 
- * @author peter
+ * @author Peter Milne
  *
  */
 public class Index {
@@ -55,7 +56,7 @@ public class Index {
 	}
 	/**
 	 * Populates the Index object from an "info" message from Aerospike
-	 * @param info
+	 * @param info Info string from node
 	 */
 	public void setIndexInfo(String info){
 		//ns=phobos_sindex:set=longevity:indexname=str_100_idx:num_bins=1:bins=str_100_bin:type=TEXT:sync_state=synced:state=RW;
@@ -77,7 +78,7 @@ public class Index {
 
 	@Override
 	public String toString() {
-		return this.getName();
+		return String.format("Index:%s:%s:%s:%s", this.getName(), this.getBin(), this.getType(), this.getCollectionType());
 	}
 	public String getBin() {
 		if (values.containsKey("bin"))
@@ -88,9 +89,34 @@ public class Index {
 	}
 	public IndexType getType(){
 		String indexTypeString = values.get("type");
-		if (indexTypeString.equalsIgnoreCase("TEXT"))
+		if (indexTypeString.equalsIgnoreCase("TEXT") || indexTypeString.equalsIgnoreCase("STRING"))
 			return IndexType.STRING;
-		else
+		else if (indexTypeString.equalsIgnoreCase("NUMERIC"))
 			return IndexType.NUMERIC;
+		else
+			return IndexType.GEO2DSPHERE;
+	}
+	
+	public IndexCollectionType getCollectionType(){
+		String indexCollectionTypeString = values.get("indextype");
+		if (indexCollectionTypeString.equalsIgnoreCase("List"))
+			return IndexCollectionType.LIST;
+		else if (indexCollectionTypeString.equalsIgnoreCase("MAPKEYS"))
+			return IndexCollectionType.MAPKEYS;
+		else if (indexCollectionTypeString.equalsIgnoreCase("MAPVALUES"))
+			return IndexCollectionType.MAPVALUES;
+		else
+			return IndexCollectionType.DEFAULT;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		return (
+				this.getClass().equals(other.getClass()) &&
+				this.getBin().equals(((Index)other).getBin()) &&
+				this.getName().equals(((Index)other).getName()) &&
+				this.getType()==((Index)other).getType() &&
+				this.getCollectionType()==((Index)other).getCollectionType()
+				);
 	}
 }

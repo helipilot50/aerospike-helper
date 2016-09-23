@@ -14,3 +14,4 @@ csharp/AerospikeHelper/Aerospike.Helper.Tests/bin
 csharp/AerospikeHelper/Aerospike.Helper.Tests/obj
 csharp/AerospikeHelper/Driver/bin/Debug
 csharp/AerospikeHelper/Driver/obj
+/target/

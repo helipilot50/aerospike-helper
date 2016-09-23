@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.aerospike</groupId>
 	<artifactId>aerospike-helper-java</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.7</version>
 	<name>aerospike-helper-java</name>
 	<organization>
 		<name>Aerospike Inc.</name>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>com.aerospike</groupId>
 			<artifactId>aerospike-client</artifactId>
-			<version>[3.1.7,)</version>
+			<version>[3.2.3,)</version>
 		</dependency>
 		<!-- Apache command line parser. -->
 		<dependency>
@@ -49,6 +49,13 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>2.9.3</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>
@@ -79,6 +86,25 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<reportOutputDirectory>${project.basedir}</reportOutputDirectory>
+					<outputDirectory>${project.basedir}</outputDirectory>
+					<destDir>javadoc</destDir>
+					<doctitle>Aerospike Helper</doctitle>
+					<show>public</show>
+					<splitindex>true</splitindex>
+					<bottom>Copyright &#169; 2012&#x2013;{currentYear} Aerospike, Inc.
+						All rights reserved.</bottom>
+					<sourcepath>${project.basedir}/src/main/java</sourcepath>
+					<!-- <sourceFileIncludes> -->
+					<!-- <include>com/aerospike/helper/**/*</include> -->
+					<!-- </sourceFileIncludes> -->
+				</configuration>
 			</plugin>
 		</plugins>
 		<resources>

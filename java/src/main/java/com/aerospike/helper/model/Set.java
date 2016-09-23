@@ -53,7 +53,10 @@ public class Set {
 	}
 
 	public void setInfo(String info){
+		//Old
 		//ns_name=test:set_name=demo:n_objects=1:set-stop-write-count=0:set-evict-hwm-count=0:set-enable-xdr=use-default:set-delete=false
+		//New
+		//ns=test:set=selector:objects=0:memory_data_bytes=0:deleting=false:stop-writes-count=0:set-enable-xdr=use-default:disable-eviction=false;ns=test:set=rdd-test:objects=100:memory_data_bytes=4892:deleting=false:stop-writes-count=0:set-enable-xdr=use-default:disable-eviction=false;ns=test:set=new-rdd-data:objects=8:memory_data_bytes=702:deleting=false:stop-writes-count=0:set-enable-xdr=use-default:disable-eviction=false;ns=test:set=users:objects=1000:memory_data_bytes=163353:deleting=false:stop-writes-count=0:set-enable-xdr=use-default:disable-eviction=false;ns=test:set=tweets:objects=809:memory_data_bytes=73208:deleting=false:stop-writes-count=0:set-enable-xdr=use-default:disable-eviction=false;
 		if (!info.isEmpty()){
 			String[] parts = info.split(":");
 			if (values == null){
@@ -72,12 +75,19 @@ public class Set {
 					storedValue.value = value;
 				}
 			}
-			this.name = (String) values.get("set_name").value;
+			applysetName();
 		}
+	}
+	
+	private void applysetName(){
+		if (values.containsKey("set_name"))
+			this.name = (String)  values.get("set_name").value;
+		else if (values.containsKey("set"))
+			this.name = (String)  values.get("set").value;
 	}
 
 	public void mergeSetInfo(String info){
-		//ns_name=test:set_name=demo:n_objects=1:set-stop-write-count=0:set-evict-hwm-count=0:set-enable-xdr=use-default:set-delete=false
+		// ns=test:set=selector:objects=1000:memory_data_bytes=0:deleting=false:stop-writes-count=0:set-enable-xdr=use-default:disable-eviction=false
 		if (!info.isEmpty()){
 			String[] parts = info.split(":");
 			if (values == null){
@@ -102,7 +112,7 @@ public class Set {
 					}
 				}
 			}
-			this.name = (String) values.get("set_name").value;
+			applysetName();
 		}
 	}
 	public void setValues(Map<String, NameValuePair> newValues){

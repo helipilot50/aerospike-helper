@@ -1,0 +1,25 @@
+-classpath
+'/Users/peter/git/aerospike/aerospike-helper/java/target/classes:/Users/peter/.m2/repository/org/gnu/gnu-crypto/2.0.1/gnu-crypto-2.0.1.jar:/Users/peter/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar:/Users/peter/.m2/repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar:/Users/peter/.m2/repository/org/luaj/luaj-jse/3.0/luaj-jse-3.0.jar:/Users/peter/.m2/repository/org/mindrot/jbcrypt/0.3m/jbcrypt-0.3m.jar:/Users/peter/.m2/repository/com/aerospike/aerospike-client/3.2.1/aerospike-client-3.2.1.jar'
+-encoding
+'UTF-8'
+-public
+-sourcepath
+'/Users/peter/git/aerospike/aerospike-helper/java/src/main/java'
+-author
+-bottom
+'Copyright © 2012–2016 Aerospike, Inc. 						All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/Users/peter/git/aerospike/aerospike-helper/java/reports/javadoc'
+-docencoding
+'UTF-8'
+-doctitle
+'Aerospike Helper'
+-linkoffline
+'http://docs.oracle.com/javase/6/docs/api' '/Users/peter/git/aerospike/aerospike-helper/java/target/javadoc-bundle-options'
+-splitindex
+-use
+-version
+-windowtitle
+'aerospike-helper-java 1.0.3 API'

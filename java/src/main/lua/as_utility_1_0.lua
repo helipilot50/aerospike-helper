@@ -6,30 +6,29 @@ function dumpTable (tbl, indent)
   for k, v in pairs(tbl) do
     formatting = string.rep("  ", indent) .. k .. ": "
     if type(v) == "table" then
-      info(formatting)
-      tprint(v, indent+1)
+      debug(formatting)
+      dumpTable(v, indent+1)
     else
-      info(formatting .. tostring(v))
+      debug(formatting .. tostring(v))
     end
   end
 end
 -- debug routing to print the local heap
 
 function dumpRecord (rec)
-  info("record:")
-  info("  set:"..tostring(record.setname(rec)))
-  info("  digest:"..tostring(record.digest(rec)))
-  info("  gen:"..tostring(record.gen(rec)))
-  info("  exp:"..tostring(record.ttl(rec)))
-  info("  bins:")
+  local record_string = "\nrecord:\n"
+  record_string = record_string.."  set:"..tostring(record.setname(rec)).."\n"
+  record_string = record_string.."  digest:"..tostring(record.digest(rec)).."\n"
+  record_string = record_string.."  gen:"..tostring(record.gen(rec)).."\n"
+  record_string = record_string.."  exp:"..tostring(record.ttl(rec)).."\n"
+  record_string = record_string.."  bins:".."\n"
   local names = record.bin_names(rec)
   for k, v in pairs(names) do
     local binVal = rec[v]
-    info("    (" .. v .. ":"..tostring(binVal)..")")
+    record_string = record_string.."    (" .. v .. ":"..tostring(binVal)..")\n"
   end
+  debug(record_string)
 end
-
-
 
 function dumpLocal()
   local i = 1 
@@ -37,27 +36,36 @@ function dumpLocal()
         local name, value = ldebug.getlocal(2, i)
         if name then 
           if type(value) == "table" then
-            info("dump:"..name)
+            debug("dump:"..name)
             dumpTable(value, 1)
           else
-            info("dump:"..name.." = "..tostring(value)) 
+            debug("dump:"..name.." = "..tostring(value)) 
           end
         end
         i = i + 1
   until not name
 end
 
-function containsValue(collection, value)
-	for _,v in pairs(collection) do
-	  if v == value then
-	    return true
-	  end
-	end
-	return false
+function listContains(collection, value)
+    for v in list.iterator(collection) do
+      if v == value then
+        return true
+      end
+    end
+  return false
+end 
+
+function listRange(collection, low, high)
+    for v in list.iterator(collection) do
+      if v >= low and v <= high  then
+        return true
+      end
+    end
+  return false
 end 
 
 function containsKey(collection, key)
-	for k,_ in pairs(collection) do
+	for k,_ in map.pairs(collection) do
 	  if k == value then
 	    return true
 	  end
@@ -65,17 +73,26 @@ function containsKey(collection, key)
 	return false
 end 
 
+function containsValue(collection, value)
+    for _,v in map.pairs(collection) do
+      if v == value then
+        return true
+      end
+    end
+  return false
+end 
+
 function rangeValue(collection, low, high)
-	for _,v in pairs(collection) do
-	  if v >= low and v <= high  then
-	    return true
+	  for _,v in map.pairs(collection) do
+	    if v >= low and v <= high  then
+	      return true
+	    end
 	  end
-	end
 	return false
 end 
 
 function rangeKey(collection, low, high)
-	for k,_ in pairs(collection) do
+	for k,_ in map.pairs(collection) do
 	  if k >= low and k <= high  then
 	    return true
 	  end
@@ -85,12 +102,13 @@ end
 
 
 local function filter_record(rec, filterFuncStr, filterFunc)
-  --dumpRecord(rec)
-  --info(filterFuncStr)
+  -- dumpRecord(rec)
   -- if there is no filter, select all records
-  if filterFuncStr == nil then
+  if filterFuncStr == "none" then
     return true
   end
+  debug("filterFuncStr:"..filterFuncStr)
+  
   -- if there was a filter specified, and was successfully compiled
   if filterFunc ~= nil then
     local context = {rec = rec, 
@@ -99,7 +117,19 @@ local function filter_record(rec, filterFuncStr, filterFunc)
                     generation = record.gen(rec),
                     digest = record.digest(rec),
                     set_name = record.setname(rec),
-                    expiry = record.ttl(rec)}
+                    expiry = record.ttl(rec),
+                    listContains = listContains,
+                    listRange = listRange,
+                    rangeKey = rangeKey,
+                    rangeValue = rangeValue,
+                    containsKey = containsKey,
+                    containsValue = containsValue,
+                    table = table,
+                    dumpLocal = dumpLocal,
+                    dumpTable = dumpTable,
+                    dumpRecord = dumpRecord,
+                    debug = debug,
+                    info = info}
 
     -- sandbox the function
     setfenv(filterFunc, context)
@@ -134,20 +164,22 @@ end
 ------------------------------------------------------------------------------------------
 
 function select_records(stream, origArgs)
+  debug("origArgs: "..tostring(origArgs))
   local filterFuncStr = origArgs["filterFuncStr"]
   local fieldValueStatements = origArgs["funcStmt"]
   local fields = origArgs["selectFields"]
-
+  
   local includeAllFields = false
   if origArgs["includeAllFields"] == 1 or origArgs["includeAllFields"] == 'true' then
     includeAllFields = true
   end
 
   local filterFunc = nil
-  if filterFuncStr ~= nil then
+  if filterFuncStr ~= "none" then
+  --  debug("load filter function:"..tostring(filterFuncStr))
     filterFunc = load(filterFuncStr)
+  --  debug("loaded filter function")
   end
-
   local fieldFuncs = parseFieldStatements(fieldValueStatements)
 
   local function map_record(rec)
@@ -176,6 +208,7 @@ function select_records(stream, origArgs)
     if (fields == nil) or (includeAllFields == true) then
       local names = record.bin_names(rec)
       for i, v in ipairs(names) do
+        --debug(tostring(rec[v]))
         result[v] = rec[v]
       end
     end
@@ -189,11 +222,11 @@ function select_records(stream, origArgs)
 
 
   local function filter_records(rec)
-    --info("filterFuncStr:"..tostring(filterFuncStr))
+    --debug("filterFuncStr:"..tostring(filterFuncStr))
     return filter_record(rec, filterFuncStr, filterFunc)
   end
 
-  if filterFuncStr ~= nil then
+  if filterFuncStr ~= "none" then
     return stream : filter(filter_records) : map(map_record)
   else
     return stream : map(map_record)
@@ -204,10 +237,11 @@ end
 --  Returns Record Meta For Specified Filters
 ------------------------------------------------------------------------------------------
 function query_meta(stream, origArgs)
+  debug("origArgs: "..tostring(origArgs))
   local filterFuncStr = origArgs["filterFuncStr"]
 
   local filterFunc = nil
-  if filterFuncStr ~= nil then
+  if filterFuncStr ~= "none" then
     filterFunc = load(filterFuncStr)
   end
 
@@ -234,10 +268,11 @@ end
 --  Returns All bin names
 ------------------------------------------------------------------------------------------
 function query_bin_names(stream, origArgs)
+  debug("origArgs: "..tostring(origArgs))
   local filterFuncStr = origArgs["filterFuncStr"]
 
   local filterFunc = nil
-  if filterFuncStr ~= nil then
+  if filterFuncStr ~= "none" then
     filterFunc = load(filterFuncStr)
   end
 

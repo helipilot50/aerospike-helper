@@ -42,7 +42,17 @@
     <Reference Include="Es.Logging.Log4">
       <HintPath>..\packages\Es.Logging.Log4.1.0.0\lib\net45\Es.Logging.Log4.dll</HintPath>
     </Reference>
+    <Reference Include="AerospikeClient">
+      <HintPath>..\packages\Aerospike.Client.3.2.1\lib\net40\AerospikeClient.dll</HintPath>
+    </Reference>
+    <Reference Include="Neo.Lua">
+      <HintPath>..\packages\NeoLua.1.2.5\lib\net45\Neo.Lua.dll</HintPath>
+    </Reference>
+    <Reference Include="Neo.Lua.Desktop">
+      <HintPath>..\packages\NeoLua.1.2.5\lib\net45\Neo.Lua.Desktop.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
+<<<<<<< HEAD
       <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Neo.Lua">
@@ -50,6 +60,9 @@
     </Reference>
     <Reference Include="AerospikeClient">
       <HintPath>..\packages\Aerospike.Client.3.2.4\lib\net40\AerospikeClient.dll</HintPath>
+=======
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+>>>>>>> master
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -61,22 +74,9 @@
     <Compile Include="Model\NameValuePair.cs" />
     <Compile Include="Model\Namespace.cs" />
     <Compile Include="Model\Set.cs" />
-    <Compile Include="Query\Qualifier.cs" />
     <Compile Include="Collections\LargeList.cs" />
-    <Compile Include="Query\ExpiryQualifer.cs" />
-    <Compile Include="Query\QueryEngine.cs" />
-    <Compile Include="Query\KeyQualifier.cs" />
-    <Compile Include="Query\KeyRecordIterator.cs" />
-    <Compile Include="Query\GenerationQualifier.cs" />
-    <Compile Include="Tests\ModelTests.cs" />
-    <Compile Include="Tests\DeleterTests.cs" />
-    <Compile Include="Tests\HelperTests.cs" />
-    <Compile Include="Tests\InserterTests.cs" />
-    <Compile Include="Tests\SelectorTests.cs" />
-    <Compile Include="Tests\UpdaterTests.cs" />
-    <Compile Include="Tests\UsersTests.cs" />
-    <Compile Include="Tests\TestQueryEngine.cs" />
     <Compile Include="Collections\NotImplementedException.cs" />
+    <Compile Include="Tests\CollectionsLargeList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
