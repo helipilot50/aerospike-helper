@@ -1,22 +1,20 @@
-﻿<Properties StartupItem="Driver/Driver.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="AerospikeHelper/Tests/SelectorTests.cs">
+﻿<Properties StartupConfiguration="{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}|Unit Tests">
+  <MonoDevelop.Ide.ItemProperties.Driver PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="AerospikeHelper/Query/Qualifier.cs">
     <Files>
-      <File FileName="AerospikeHelper/Collections/LargeList.cs" Line="1" Column="1" />
-      <File FileName="AerospikeHelper/Tests/HelperTests.cs" Line="1" Column="1" />
-      <File FileName="AerospikeHelper/Tests/UsersTests.cs" Line="1" Column="1" />
-      <File FileName="AerospikeHelper/Tests/UpdaterTests.cs" Line="1" Column="1" />
-      <File FileName="AerospikeHelper/Tests/TestQueryEngine.cs" Line="1" Column="1" />
-      <File FileName="AerospikeHelper/Tests/SelectorTests.cs" Line="32" Column="1" />
+      <File FileName="AerospikeHelper/Query/QueryEngine.cs" Line="557" Column="5" />
+      <File FileName="AerospikeHelper/Query/KeyRecordIterator.cs" Line="68" Column="1" />
+      <File FileName="AerospikeHelper/Query/Qualifier.cs" Line="153" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/peter/git/aerospike/aerospike-helper/csharp/AerospikeHelper/AerospikeHelper/Tests/DeleterTests.cs" line="66" column="1" />
-      <Breakpoint file="/Users/peter/git/aerospike/aerospike-helper/csharp/AerospikeHelper/AerospikeHelper/Query/KeyRecordIterator.cs" line="98" column="1" />
-      <Breakpoint file="/Users/peter/git/aerospike/aerospike-client-csharp/AerospikeClient/Lua/LuaInstance.cs" line="49" column="1" />
-      <Breakpoint file="/Users/peter/git/aerospike/aerospike-client-csharp/AerospikeClient/Lua/LuaInstance.cs" line="163" column="1" />
+      <Breakpoint file="/Users/peter/git/aerospike/aerospike-helper/csharp/AerospikeHelper/AerospikeHelper/Tests/UtilityTests.cs" line="67" column="31" />
+      <Breakpoint file="/Users/peter/git/aerospike/aerospike-helper/csharp/AerospikeHelper/AerospikeHelper/Collections/Helper.cs" line="14" column="1" />
+      <Breakpoint file="/Users/peter/git/aerospike/aerospike-helper/csharp/AerospikeHelper/AerospikeHelper/Utils.cs" line="16" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Aerospike.Helper PreferredExecutionTarget="MonoDevelop.Default" />
 </Properties>

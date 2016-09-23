@@ -189,8 +189,9 @@ namespace Aerospike.Helper.Query
 
 
 
-			stmt.SetAggregateFunction(Assembly.GetExecutingAssembly(), 
-				"Aerospike.Helper." + AS_UTILITY_PATH +"."+ QUERY_MODULE + ".lua",
+			stmt.SetAggregateFunction(
+				Assembly.GetExecutingAssembly(), 
+				"Aerospike.Helper.udf."+ QUERY_MODULE + ".lua",
 				QUERY_MODULE, 
 				fnName, 
 				argValue);
@@ -356,12 +357,12 @@ namespace Aerospike.Helper.Query
 		{
 			if (GetModule (QUERY_MODULE + ".lua") == null) { // register the as_utility udf module
 
-				var assembly = Assembly.GetExecutingAssembly();
 				RegisterTask task = this.client.Register (null,  
-					assembly, 
-				"Aerospike.Helper." + AS_UTILITY_PATH +"."+ QUERY_MODULE + ".lua",
-					QUERY_MODULE + ".lua", Language.LUA);
+					Assembly.GetExecutingAssembly(), 
+					"Aerospike.Helper.udf." + QUERY_MODULE +".lua",
+					QUERY_MODULE+".lua", Language.LUA);
 				task.Wait();
+
 			}
 		}
 		#endregion
@@ -385,7 +386,7 @@ namespace Aerospike.Helper.Query
 		[MethodImpl (MethodImplOptions.Synchronized)]
 		public void  RefreshNamespaces ()
 		{
-			/*
+		/*
 		 * cache namespaces
 		 */
 			if (this.namespaceCache == null) {
@@ -538,14 +539,22 @@ namespace Aerospike.Helper.Query
 		public void Close ()
 		{
 			if (this.client != null)
-				this.client.Close ();
-			indexCache.Clear ();
-			indexCache = null;
+			{
+				this.client.Close();
+			}
+			if (this.indexCache != null)
+			{
+				indexCache.Clear();
+				indexCache = null;
+			}
 			updatePolicy = null;
 			insertPolicy = null;
 			infoPolicy = null;
-			moduleCache.Clear ();
-			moduleCache = null;
+			if (moduleCache != null)
+			{
+				moduleCache.Clear();
+				moduleCache = null;
+			}
 		}
 
 		public void Dispose ()

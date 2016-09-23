@@ -45,7 +45,7 @@ namespace Aerospike.Helper.Model
 		}
 
 		public void Info(String info){
-			//ns_name=test:set_name=demo:n_objects=1:set-stop-write-count=0:set-evict-hwm-count=0:set-enable-xdr=use-default:set-delete=false
+			//ns_name=test:sete=demo:n_objects=1:set-stop-write-count=0:set-evict-hwm-count=0:set-enable-xdr=use-default:set-delete=false
 			if (info.Length > 0){
 				String[] parts = info.Split(':');
 				if (values == null){
@@ -64,7 +64,7 @@ namespace Aerospike.Helper.Model
 						storedValue.value = value;
 					}
 				}
-				this.name = (String) values["set_name"].value;
+				this.name = (String) values["set"].value;
 			}
 		}
 

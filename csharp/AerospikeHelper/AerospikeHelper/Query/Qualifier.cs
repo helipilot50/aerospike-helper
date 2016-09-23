@@ -145,9 +145,11 @@ namespace Aerospike.Helper.Query
 			case FilterOperation.START_WITH:
 				return String.Format("string.sub({0},1,string.len({1}))=={2}", luaFieldString(Field), value1, value1);			
 			case FilterOperation.ENDS_WITH:
-				return String.Format("{0}=='' or string.sub({1},-string.len({0}))=={0}", 
+				return String.Format("{0}=='' or string.sub({1},-string.len({2}))=={3}", 
 					value1,
-					luaFieldString(Field));			
+					luaFieldString(Field),
+                    value1,
+                    value1);			
 			}
 			return "";
 		}

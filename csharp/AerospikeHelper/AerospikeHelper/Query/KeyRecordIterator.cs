@@ -66,12 +66,17 @@ namespace Aerospike.Helper.Query
 				hasNext = true;
 
 			} else if (this.resultSet != null && this.resultSet.Next ()) {
-				Dictionary<String, Object> map = (Dictionary<String, Object>)this.resultSet.Object;
-				Dictionary<String,Object> meta = (Dictionary<String, Object>)map [META_DATA];
+				
+				Dictionary<Object, Object> map = (Dictionary<Object, Object>)this.resultSet.Object;
+				Dictionary<Object,Object> meta = (Dictionary<Object, Object>)map [META_DATA];
 				map.Remove (META_DATA);
-				Dictionary<String,Object> binMap = new Dictionary<String, Object> (map);
-				int generation = (int)meta [GENERATION];
-				int ttl = (int)meta [EXPIRY];
+				Dictionary<String,Object> binMap = new Dictionary<String, Object> ();
+				foreach (var pair in map)
+				{
+					binMap[pair.Key.ToString()] = pair.Value;
+				}
+				int generation = Convert.ToInt32((long)meta [GENERATION]);
+				int ttl = Convert.ToInt32((long)meta [EXPIRY]);
 				Record record = new Record (binMap, generation, ttl);
 				Key key = new Key (ns, (byte[])meta [DIGEST], (String)meta [SET_NAME], null);
 				currentRecord = new KeyRecord (key, record);

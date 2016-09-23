@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aerospike.Helper", "Aerospi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driver", "Driver\Driver.csproj", "{F88E8B32-152F-4C3F-9C4A-C0D26E37F002}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AerospikeClient", "..\..\..\aerospike-client-csharp\AerospikeClient\AerospikeClient.csproj", "{21FEB257-1454-4A21-81D6-BDB6FE865E97}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,22 +17,6 @@ Global
 		Debug IIS|x86 = Debug IIS|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug IIS|x64.ActiveCfg = Debug IIS|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug IIS|x64.Build.0 = Debug IIS|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug IIS|x86.ActiveCfg = Debug IIS|x86
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug IIS|x86.Build.0 = Debug IIS|x86
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug|x64.ActiveCfg = Debug|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug|x64.Build.0 = Debug|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug|x86.ActiveCfg = Debug|x86
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Debug|x86.Build.0 = Debug|x86
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release IIS|x64.ActiveCfg = Release IIS|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release IIS|x64.Build.0 = Release IIS|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release IIS|x86.ActiveCfg = Release IIS|x86
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release IIS|x86.Build.0 = Release IIS|x86
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release|x64.ActiveCfg = Release|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release|x64.Build.0 = Release|x64
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release|x86.ActiveCfg = Release|x86
-		{21FEB257-1454-4A21-81D6-BDB6FE865E97}.Release|x86.Build.0 = Release|x86
 		{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}.Debug IIS|x64.ActiveCfg = Debug|x86
 		{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}.Debug IIS|x64.Build.0 = Debug|x86
 		{B93E0ECF-2369-409A-8C94-02C0BC0AF2C3}.Debug IIS|x86.ActiveCfg = Debug|x86
