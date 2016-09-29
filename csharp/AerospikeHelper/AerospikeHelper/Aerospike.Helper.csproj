@@ -76,6 +76,8 @@
     <Compile Include="Tests\InserterTests.cs" />
     <Compile Include="Tests\TestQueryEngine.cs" />
     <Compile Include="Tests\HelperTests.cs" />
+    <Compile Include="Tests\DeleterTests.cs" />
+    <Compile Include="Tests\SelectorTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
