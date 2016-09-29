@@ -30,7 +30,7 @@ Records are selected using a list of the Criteria objects.  In this example you 
 	SELECT * FROM test.selector WHERE color = 'blue' AND name LIKE 'na'
 ```
 C#
-```C#
+```csharp
 	Qualifier qual1 = new Qualifier("color", Qualifier.FilterOperation.EQ, Value.get("blue"));
 	Qualifier qual2 = new Qualifier("name", Qualifier.FilterOperation.START_WITH, Value.get("na"));
 	KeyRecordIterator it = queryEngine.select("test", "selector", null, qual1, qual2);
@@ -52,7 +52,7 @@ This example is an insert equivalent to this sql statement:
 ```
 C#
 
-```C#
+```csharp
 	Bin name = new Bin("name", "name:" + x);
 	Bin age = new Bin("age", ages[i]);
 	Bin colour = new Bin("color", colours[i]);
@@ -76,7 +76,7 @@ Here is a update example that uses a filter, similar to this SQL:
 	WHERE color LIKE 'e';
 ```
 C#
-```C#
+```csharp
 	Qualifier qual1 = new Qualifier("color", Qualifier.FilterOperation.ENDS_WITH, Value.get("e"));
 	ArrayList<Bin> bins = new ArrayList<Bin>() {{
 		    add(new Bin("ending", "ends with e"));
@@ -95,7 +95,7 @@ The Delete example that uses a filter, similar to this SQL:
 	DELETE FROM test.people WHERE last_name='last-name-1'
 ```
 C#
-```C#
+```csharp
 
 	Qualifier qual1 = new Qualifier("last_name", Qualifier.FilterOperation.EQ, Value.get("last-name-1"));
 	Statement stmt = new Statement();
