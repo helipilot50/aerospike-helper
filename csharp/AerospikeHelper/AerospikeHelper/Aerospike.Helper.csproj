@@ -43,26 +43,16 @@
       <HintPath>..\packages\Es.Logging.Log4.1.0.0\lib\net45\Es.Logging.Log4.dll</HintPath>
     </Reference>
     <Reference Include="AerospikeClient">
-      <HintPath>..\packages\Aerospike.Client.3.2.1\lib\net40\AerospikeClient.dll</HintPath>
-    </Reference>
-    <Reference Include="Neo.Lua">
-      <HintPath>..\packages\NeoLua.1.2.5\lib\net45\Neo.Lua.dll</HintPath>
+      <HintPath>..\packages\Aerospike.Client.3.2.4\lib\net40\AerospikeClient.dll</HintPath>
     </Reference>
     <Reference Include="Neo.Lua.Desktop">
-      <HintPath>..\packages\NeoLua.1.2.5\lib\net45\Neo.Lua.Desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-<<<<<<< HEAD
-      <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NeoLua.1.2.8\lib\net45\Neo.Lua.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="Neo.Lua">
-      <HintPath>..\packages\NeoLua.0.9.14\lib\net4\Neo.Lua.dll</HintPath>
+      <HintPath>..\packages\NeoLua.1.2.8\lib\net45\Neo.Lua.dll</HintPath>
     </Reference>
-    <Reference Include="AerospikeClient">
-      <HintPath>..\packages\Aerospike.Client.3.2.4\lib\net40\AerospikeClient.dll</HintPath>
-=======
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
->>>>>>> master
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -77,11 +67,21 @@
     <Compile Include="Collections\LargeList.cs" />
     <Compile Include="Collections\NotImplementedException.cs" />
     <Compile Include="Tests\CollectionsLargeList.cs" />
+    <Compile Include="Query\QueryEngine.cs" />
+    <Compile Include="Query\Qualifier.cs" />
+    <Compile Include="Query\keyRecordIterator.cs" />
+    <Compile Include="Query\KeyQualifier.cs" />
+    <Compile Include="Query\ExpiryQualifier.cs" />
+    <Compile Include="Query\GenerationQualifier.cs" />
+    <Compile Include="Tests\InserterTests.cs" />
+    <Compile Include="Tests\TestQueryEngine.cs" />
+    <Compile Include="Tests\HelperTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Collections\" />
     <Folder Include="Tests\" />
+    <Folder Include="Query\" />
     <Folder Include="udf\" />
   </ItemGroup>
   <ItemGroup>

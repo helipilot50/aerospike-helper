@@ -7,11 +7,11 @@ namespace Aerospike.Helper.Query
 {
 	public class Qualifier //: IDictionary<String, Object> 
 	{
-		private const String FIELD = "field";
-		private const String VALUE2 = "value2";
-		private const String VALUE1 = "value1";
-		private const String OPERATION = "operation";
-		private const String COLLECTION_OPERATION = "collection-operation";
+		protected const String FIELD = "field";
+		protected const String VALUE2 = "value2";
+		protected const String VALUE1 = "value1";
+		protected const String OPERATION = "operation";
+		protected const String COLLECTION_OPERATION = "collection-operation";
 		protected Dictionary<String, Object> internalMap;
 		public enum FilterOperation {
 			EQ, GT, GTEQ, LT, LTEQ, NOTEQ, BETWEEN, START_WITH, ENDS_WITH, 
