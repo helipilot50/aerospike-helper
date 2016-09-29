@@ -13,7 +13,7 @@ Zero or More filters (predicates) can be specified for each operation. Filtering
 ##Creating a query engine
 Creating a QueryEngine is quite simple, the constructor is passed an instance of AerospikeClient.
 
-```C#
+```csharp
 	AerospikeClient client = new AerospikeClient(clientPolicy, "127.0.0.1", 3000);
 	
 	. . .
