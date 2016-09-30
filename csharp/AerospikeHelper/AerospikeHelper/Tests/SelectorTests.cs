@@ -4,11 +4,10 @@ using Aerospike.Client;
 using System.Collections.Generic;
 namespace Aerospike.Helper.Query
 {
+	[TestFixture]
 	public class SelectorTests : HelperTests
 	{
-		public SelectorTests()
-		{
-		}
+		
 		[TestCase]
 		public void selectOneWitKey()
 		{

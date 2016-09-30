@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Aerospike.Client;
 namespace Aerospike.Helper.Query
 {
+	
 	public class HelperTests
 	{
 		protected AerospikeClient client;
@@ -17,13 +18,14 @@ namespace Aerospike.Helper.Query
 		{
 			clientPolicy = new ClientPolicy();
 			clientPolicy.timeout = TestQueryEngine.TIME_OUT;
-			client = new AerospikeClient(clientPolicy, TestQueryEngine.HOST, TestQueryEngine.PORT);
-			client.writePolicyDefault.expiration = 1800;
-			client.writePolicyDefault.recordExistsAction = RecordExistsAction.REPLACE;
+
 		}
 		[SetUp]
 		public void setUp()
 		{
+			client = new AerospikeClient(clientPolicy, TestQueryEngine.HOST, TestQueryEngine.PORT);
+			client.writePolicyDefault.expiration = 1800;
+			client.writePolicyDefault.recordExistsAction = RecordExistsAction.REPLACE;
 			queryEngine = new QueryEngine(client);
 			int i = 0;
 			Key key = new Key(TestQueryEngine.NAMESPACE, TestQueryEngine.SET_NAME, "selector-test:" + 10);

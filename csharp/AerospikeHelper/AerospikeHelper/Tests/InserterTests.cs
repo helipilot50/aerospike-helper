@@ -7,9 +7,7 @@ namespace Aerospike.Helper.Query
 	[TestFixture]
 	public class InserterTests : HelperTests
 	{
-		public InserterTests()
-		{
-		}
+		
 
 		[SetUp]
 		public virtual void SetUp()

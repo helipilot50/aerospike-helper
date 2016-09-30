@@ -1,6 +1,8 @@
-﻿using System;
-namespace Aerospike.Helper
+﻿namespace Aerospike.Helper.Query
 {
+	using System;
+	using NUnit.Framework;
+	using System.Collections;
 	public class TestQueryEngine
 	{
 		public const int PORT = 3000;
@@ -15,8 +17,21 @@ namespace Aerospike.Helper
 		public const int AUTH_PORT = 3200;
 		public const String AUTH_UID = "dbadmin";
 		public const String AUTH_PWD = "au4money";
-		public TestQueryEngine()
+
+		//[Suite]
+		public static IEnumerable Suite
 		{
+			get
+			{
+				ArrayList suite = new ArrayList();
+				suite.Add(new SelectorTests());
+				suite.Add(new InserterTests());
+				suite.Add(new UpdatorTests());
+				suite.Add(new DeleterTests());
+				suite.Add(new ListTests());
+				suite.Add(new MapTests());
+				return suite;
+			}
 		}
 	}
 }
