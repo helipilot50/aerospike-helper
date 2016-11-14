@@ -28,8 +28,8 @@ Here are several examples using different data types as list elements
 	Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-stack-test-key-String");
 	com.aerospike.helper.collections.LargeStack ls = new com.aerospike.helper.collections.LargeStack (client, null, key, "100-String", null);
 	for (int x = 0; x < number; x++) {
-	ls.push(Value.get("cats-dogs-"+x));
-}
+		ls.push(Value.get("cats-dogs-"+x));
+	}
 
 ```
 1. A top record is specified using a `Key`
