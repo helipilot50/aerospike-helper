@@ -176,7 +176,7 @@ public class LargeStack {
 	 * @return					list of items selected
 	 */
 	public List<?> filter(int peekCount, String filterModule, String filterName, Value... filterArgs) throws AerospikeException {
-		return null; //TODO (List<?>)client.execute(policy, key, PackageName, "filter", binName, Value.get(peekCount), Value.get(filterModule), Value.get(filterName), Value.get(filterArgs));
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class LargeStack {
 	 * Return map of stack configuration parameters.
 	 */
 	public Map<?,?> getConfig() throws AerospikeException {
-		return null;// TODO (Map<?,?>)client.execute(policy, key, PackageName, "get_config", binName);
+		throw new NotImplementedException();
 	}
 
 	/**
@@ -214,14 +214,14 @@ public class LargeStack {
 	 * @param capacity			max entries in set
 	 */
 	public void setCapacity(int capacity) throws AerospikeException {
-		//TODO client.execute(policy, key, PackageName, "set_capacity", binName, Value.get(capacity));
+		throw new NotImplementedException();
 	}
 
 	/**
 	 * Return maximum number of entries for the stack.
 	 */
 	public int getCapacity() throws AerospikeException {
-		return Integer.MAX_VALUE; //TODO 
+		throw new NotImplementedException();
 	}
 
 	private void aquireLock() {

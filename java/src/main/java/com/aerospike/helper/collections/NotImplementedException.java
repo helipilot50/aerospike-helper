@@ -8,7 +8,7 @@ public class NotImplementedException extends RuntimeException {
 	private static final long serialVersionUID = 6989807145209111662L;
 
 	public NotImplementedException() {
-		super("Method not implemented");
+		super("LDT Method not implemented");
 	}
 
 	public NotImplementedException(String message, Throwable cause, boolean enableSuppression,
