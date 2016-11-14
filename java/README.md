@@ -3,6 +3,7 @@ Unofficial helper functions and classes for Aerospike
 
 Aerospike Helper includes:
 - Large List
+- Large Stack
 - Query Engine 
 - Log4j Appender
 - UDF utility functions
@@ -10,6 +11,11 @@ Aerospike Helper includes:
 ## LargeList
 A non-LDT Large List
 [LargeList Documentation](doc/LargeList.md)
+
+## LargeStack
+A non-LDT Large Stack
+[LargeStack Documentation](doc/LargeStack.md)
+
 
 ## Query Engine
 The `QueryEnginer` is a multi-filter query engine in Java using Aerospike Aggregations. A query will automatically choose an index if one is available to qualify the results, and then use Stream UDFs to further qualify the results.
