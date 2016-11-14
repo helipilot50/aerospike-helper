@@ -59,7 +59,10 @@ public class LargeStack {
 		} else {
 			this.lockPolicy = new WritePolicy(this.policy);
 		}
-		this.batchPolicy = new BatchPolicy(policy);
+		if (this.policy != null)
+			this.batchPolicy = new BatchPolicy(policy);
+		else
+			this.batchPolicy = new BatchPolicy(this.client.batchPolicyDefault);
 	}
 
 	/**
@@ -127,14 +130,19 @@ public class LargeStack {
 		List<Object> result = new ArrayList<Object>();
 		aquireLock();
 		Long head = getHead();
-		Key[] keys = new Key[peekCount];
-		for (Long i = head; i > head - peekCount; i--)
-			keys[i.intValue()] = makeSubKey(i);
-		Record[] records = this.client.get(this.batchPolicy, keys);
-		releaseLock();
-		for (Record record : records){
-			if (record != null && record.bins.containsKey(this.binName))
-				result.add(record.getValue(this.binName));
+		if (head > 0) {
+			Key[] keys = new Key[peekCount];
+			int x = 0;
+			for (Long i = head; i > head - peekCount; i--) {
+				keys[x] = makeSubKey(i);
+				x++;
+			}
+			Record[] records = this.client.get(this.batchPolicy, keys);
+			releaseLock();
+			for (Record record : records){
+				if (record != null && record.bins.containsKey(this.binName))
+					result.add(record.getValue(this.binName));
+			}
 		}
 		return result;
 	}
@@ -148,7 +156,7 @@ public class LargeStack {
 		Long head = getHead();
 		Key[] keys = new Key[head.intValue()];
 		for (Long i = head; i > 0; i--)
-			keys[i.intValue()] = makeSubKey(i);
+			keys[i.intValue()-1] = makeSubKey(i);
 		Record[] records = this.client.get(this.batchPolicy, keys);
 		releaseLock();
 		for (Record record : records){
@@ -241,13 +249,15 @@ public class LargeStack {
 		subKey = new Key (this.key.namespace, this.key.setName, subKeyString);
 		return subKey;
 	}
-	
+
 	private Long getHead(){
 		try{
-		Record record = this.client.operate(policy, key, 
-				Operation.get(this.headBinName));
-		Long head = record.getLong(this.headBinName);
-		return head;
+			Record record = this.client.operate(policy, key, 
+					Operation.get(this.headBinName));
+			if (record != null && record.bins.containsKey(this.headBinName))
+				return record.getLong(this.headBinName);
+			else
+				return 0L;
 		} catch (AerospikeException e){
 			if (e.getResultCode() == ResultCode.KEY_NOT_FOUND_ERROR)
 				return 0L;

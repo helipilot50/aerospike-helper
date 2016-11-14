@@ -103,6 +103,7 @@ public class CollectionsLargeStack {
 	public void scanString(){
 		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-list-test-key-String");
 		com.aerospike.helper.collections.LargeStack ls = new com.aerospike.helper.collections.LargeStack (client, null, key, "100-String", null);
+		ls.destroy ();
 		writeStringSubElements (ls, 100);
 		Assert.assertEquals (100, ls.size ());
 		List<?>values = ls.scan ();
@@ -110,6 +111,19 @@ public class CollectionsLargeStack {
 			Assert.assertEquals (values.get(x), "cats-dogs-"+x);
 		}
 		ls.destroy ();
+
+	}
+	@Test
+	public void peekString(){
+		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-list-test-key-String");
+		com.aerospike.helper.collections.LargeStack ls = new com.aerospike.helper.collections.LargeStack (client, null, key, "100-String", null);
+		ls.destroy ();
+		writeStringSubElements (ls, 100);
+		Assert.assertEquals (100, ls.size ());
+		List<?>values = ls.peek(10);
+		for (int x = 10; x > 0; x--) {
+			Assert.assertEquals (values.get(x-1), "cats-dogs-"+(100-x));
+		}
 
 	}
 
