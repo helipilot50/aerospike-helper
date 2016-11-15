@@ -3,6 +3,7 @@ Unofficial helper functions and classes for Aerospike DB
 
 It includes
 - Query Engine 
+- LDT replacement
 - Log4j Appender
 - UDF utility functions
 
