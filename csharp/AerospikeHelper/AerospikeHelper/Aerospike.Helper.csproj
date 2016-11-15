@@ -81,6 +81,8 @@
     <Compile Include="Tests\UpdatorTests.cs" />
     <Compile Include="Tests\ListTests.cs" />
     <Compile Include="Tests\MapTests.cs" />
+    <Compile Include="Collections\LargeStack.cs" />
+    <Compile Include="Tests\CollectionsLargeStack.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

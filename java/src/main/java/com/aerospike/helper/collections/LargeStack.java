@@ -1,7 +1,6 @@
 package com.aerospike.helper.collections;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -15,14 +14,12 @@ import com.aerospike.client.ResultCode;
 import com.aerospike.client.Value;
 import com.aerospike.client.policy.BatchPolicy;
 import com.aerospike.client.policy.WritePolicy;
-import com.aerospike.client.util.Util;
 
 /**
  * Create and manage a stack within a single bin. A stack is last in/first out (LIFO).
  */
 
 public class LargeStack {
-	private static final String PackageName = "lstack";
 	private static final String DEFAULT_HEAD_BIN_NAME = "___Head";
 	private static final String LOCK_SET_NAME = "____locks";
 	private final AerospikeClient client;
