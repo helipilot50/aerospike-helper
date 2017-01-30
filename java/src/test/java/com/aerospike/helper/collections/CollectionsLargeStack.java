@@ -88,7 +88,7 @@ public class CollectionsLargeStack {
 	}
 	@Test
 	public void scanInt(){
-		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-list-test-key-int");
+		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-stack-test-key-int");
 		com.aerospike.helper.collections.LargeStack ls = new com.aerospike.helper.collections.LargeStack (client, null, key, "100-int", null);
 		writeIntSubElements (ls, 100);
 		List<?> values = ls.scan ();
@@ -101,7 +101,7 @@ public class CollectionsLargeStack {
 	}
 	@Test
 	public void scanString(){
-		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-list-test-key-String");
+		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-stack-test-key-String");
 		com.aerospike.helper.collections.LargeStack ls = new com.aerospike.helper.collections.LargeStack (client, null, key, "100-String", null);
 		ls.destroy ();
 		writeStringSubElements (ls, 100);
@@ -115,7 +115,7 @@ public class CollectionsLargeStack {
 	}
 	@Test
 	public void peekString(){
-		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-list-test-key-String");
+		Key key = new Key (TestQueryEngine.NAMESPACE, SET, "100-stack-test-key-String");
 		com.aerospike.helper.collections.LargeStack ls = new com.aerospike.helper.collections.LargeStack (client, null, key, "100-String", null);
 		ls.destroy ();
 		writeStringSubElements (ls, 100);
